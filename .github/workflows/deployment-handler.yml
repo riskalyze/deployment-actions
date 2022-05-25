@@ -16,6 +16,9 @@ on:
       role_arn:
         required: true
         type: string
+      stacks:
+        required: false
+        type: string
       task:
         required: true
         type: string
@@ -43,13 +46,19 @@ jobs:
       - name: CDK deploy
         id: cdk-deploy
         env:
-          TASK: ${{ inputs.task }}
           ENVIRONMENT: ${{ inputs.environment }}
           NAMESPACE: ${{ inputs.namespace }}
+          STACKS: ${{ inputs.stacks }}
+          TASK: ${{ inputs.task }}
         run: |
+          if [ $STACKS != "" ]; then
+              stack_arg="--all"
+            else
+              stack_arg=$STACKS
+            fi
           if [ $TASK == "deploy" ]; then
             echo "Running cdk deploy..."
-            ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
+            ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json $stack_arg
             echo "::set-output name=url::$(jq -r '.[].url' cdk.out.json)"
           elif [ $TASK == "destroy" ]; then
             if [[ $ENVIRONMENT =~ ^prod ]]; then
@@ -57,7 +66,7 @@ jobs:
               exit 1
             else
               echo "Running cdk destroy..."
-              ./node_modules/.bin/cdk destroy --progress events --force
+              ./node_modules/.bin/cdk destroy --progress events --force $stack_arg
             fi
           else
             echo "ERROR! Unrecognized action $TASK."
