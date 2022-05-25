@@ -65,13 +65,21 @@ jobs:
           else
             echo "ERROR! Unrecognized task $TASK."
           fi
-      - name: Update deployment status
+      - name: Update deployment status (deploy)
         uses: bobheadxi/deployments@v1.2.0
-        if: always()
+        if: ${{ inputs.task == 'deploy' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: finish
-          status: ${{ inputs.task == 'deploy' && job.status || 'inactive' }}
+          status: ${{ job.status }}
           env: ${{ inputs.environment }}
           env_url: ${{ steps.cdk-deploy.outputs.url }}
+          deployment_id: ${{ inputs.deployment_id }}
+      - name: Update deployment status (destroy)
+        uses: bobheadxi/deployments@v1.2.0
+        if: ${{ inputs.task == 'destroy' }}
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          step: deactivate-env
+          env: ${{ inputs.environment }}
           deployment_id: ${{ inputs.deployment_id }}
