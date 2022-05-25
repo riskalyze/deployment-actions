@@ -52,9 +52,9 @@ jobs:
           TASK: ${{ inputs.task }}
         run: |
           if [ $STACKS != "" ]; then
-              stack_arg="--all"
-            else
               stack_arg=$STACKS
+            else
+              stack_arg="--all"
             fi
           if [ $TASK == "deploy" ]; then
             echo "Running cdk deploy..."
