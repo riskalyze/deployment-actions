@@ -64,7 +64,7 @@ jobs:
           fi
       - name: Update deployment status (deploy)
         uses: bobheadxi/deployments@v1.2.0
-        if: ${{ inputs.task == 'deploy' }}
+        if: always() && inputs.task == 'deploy'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: finish
@@ -74,7 +74,7 @@ jobs:
           deployment_id: ${{ inputs.deployment_id }}
       - name: Update deployment status (destroy)
         uses: bobheadxi/deployments@v1.2.0
-        if: ${{ inputs.task == 'destroy' }}
+        if: always() && inputs.task == 'destroy'
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: deactivate-env
