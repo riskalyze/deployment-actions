@@ -19,15 +19,20 @@ jobs:
       - name: CDK deploy
         id: cdk-deploy
         env:
-          ACCOUNT: ${{ github.event.deployment.payload.account }}
           ACTION: ${{ github.event.deployment.task }}
+          ENVIRONMENT: ${{ github.event.deployment.environment }}
           NAMESPACE: ${{ github.event.deployment.payload.namespace }}
         run:
           if [ $ACTION == "deploy" ]; then
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
             echo "::set-output name=url::$(jq -r '.[].url' cdk.out.json)"
-          else
-            ./node_modules/.bin/cdk destroy --progress events --force
+          elif [ $ACTION == "destroy" ]; then
+            if [ $ENVIRONMENT =~ ^prod ]; then
+              echo "ERROR! Cannot destroy a production environment!!"
+              exit 1
+            else
+              ./node_modules/.bin/cdk destroy --progress events --force
+            fi
           fi
       - name: Update deployment status
         uses: bobheadxi/deployments@v1.2.0
