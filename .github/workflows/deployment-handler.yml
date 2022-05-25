@@ -55,7 +55,7 @@ jobs:
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
             echo "::set-output name=url::$(jq -r '.[].url' cdk.out.json)"
           elif [ $TASK == "destroy" ]; then
-            if [ $ENVIRONMENT =~ ^prod ]; then
+            if [[ $ENVIRONMENT =~ ^prod ]]; then
               echo "ERROR! Cannot destroy a production environment!!"
               exit 1
             else
