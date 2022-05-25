@@ -49,7 +49,7 @@ jobs:
           TASK: ${{ inputs.task }}
           ENVIRONMENT: ${{ inputs.environment }}
           NAMESPACE: ${{ inputs.namespace }}
-        run:
+        run: |
           if [ $TASK == "deploy" ]; then
             echo "Running cdk deploy..."
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
