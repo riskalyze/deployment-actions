@@ -19,9 +19,6 @@ on:
       role_arn:
         required: true
         type: string
-      task:
-        required: true
-        type: string
 
 jobs:
   deploy:
@@ -46,15 +43,15 @@ jobs:
       - name: CDK deploy
         id: cdk-deploy
         env:
-          TASK: ${{ inputs.task }}
+          ACTION: ${{ inputs.action }}
           ENVIRONMENT: ${{ inputs.environment }}
           NAMESPACE: ${{ inputs.namespace }}
         run: |
-          if [ $TASK == "deploy" ]; then
+          if [ $ACTION == "deploy" ]; then
             echo "Running cdk deploy..."
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
             echo "::set-output name=url::$(jq -r '.[].url' cdk.out.json)"
-          elif [ $TASK == "destroy" ]; then
+          elif [ $ACTION == "destroy" ]; then
             if [[ $ENVIRONMENT =~ ^prod ]]; then
               echo "ERROR! Cannot destroy a production environment!!"
               exit 1
@@ -63,11 +60,11 @@ jobs:
               ./node_modules/.bin/cdk destroy --progress events --force
             fi
           else
-            echo "ERROR! Unrecognized task $TASK."
+            echo "ERROR! Unrecognized action $ACTION."
           fi
       - name: Update deployment status (deploy)
         uses: bobheadxi/deployments@v1.2.0
-        if: ${{ inputs.task == 'deploy' }}
+        if: ${{ inputs.action == 'deploy' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: finish
@@ -77,7 +74,7 @@ jobs:
           deployment_id: ${{ inputs.deployment_id }}
       - name: Update deployment status (destroy)
         uses: bobheadxi/deployments@v1.2.0
-        if: ${{ inputs.task == 'destroy' }}
+        if: ${{ inputs.action == 'destroy' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: deactivate-env
