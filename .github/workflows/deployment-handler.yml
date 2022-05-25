@@ -1,9 +1,6 @@
 on:
   workflow_call:
     inputs:
-      action:
-        required: true
-        type: string
       deployment_id:
         required: true
         type: number
@@ -17,6 +14,9 @@ on:
         required: true
         type: string
       role_arn:
+        required: true
+        type: string
+      task:
         required: true
         type: string
 
@@ -43,15 +43,15 @@ jobs:
       - name: CDK deploy
         id: cdk-deploy
         env:
-          ACTION: ${{ inputs.action }}
+          TASK: ${{ inputs.task }}
           ENVIRONMENT: ${{ inputs.environment }}
           NAMESPACE: ${{ inputs.namespace }}
         run: |
-          if [ $ACTION == "deploy" ]; then
+          if [ $TASK == "deploy" ]; then
             echo "Running cdk deploy..."
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
             echo "::set-output name=url::$(jq -r '.[].url' cdk.out.json)"
-          elif [ $ACTION == "destroy" ]; then
+          elif [ $TASK == "destroy" ]; then
             if [[ $ENVIRONMENT =~ ^prod ]]; then
               echo "ERROR! Cannot destroy a production environment!!"
               exit 1
@@ -60,11 +60,11 @@ jobs:
               ./node_modules/.bin/cdk destroy --progress events --force
             fi
           else
-            echo "ERROR! Unrecognized action $ACTION."
+            echo "ERROR! Unrecognized action $TASK."
           fi
       - name: Update deployment status (deploy)
         uses: bobheadxi/deployments@v1.2.0
-        if: ${{ inputs.action == 'deploy' }}
+        if: ${{ inputs.task == 'deploy' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: finish
@@ -74,7 +74,7 @@ jobs:
           deployment_id: ${{ inputs.deployment_id }}
       - name: Update deployment status (destroy)
         uses: bobheadxi/deployments@v1.2.0
-        if: ${{ inputs.action == 'destroy' }}
+        if: ${{ inputs.task == 'destroy' }}
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: deactivate-env
