@@ -1,4 +1,27 @@
-on: deployment
+on:
+  workflow_call:
+    inputs:
+      action:
+        required: true
+        type: string
+      deployment_id:
+        required: true
+        type: number
+      environment:
+        required: true
+        type: string
+      namespace:
+        required: true
+        type: string
+      region:
+        required: true
+        type: string
+      role_arn:
+        required: true
+        type: string
+      task:
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -12,22 +35,22 @@ jobs:
       - name: Assume AWS role
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-region: ${{ github.event.deployment.payload.region }}
-          role-to-assume: ${{ github.event.deployment.payload.role_arn }}
+          aws-region: ${{ inputs.region }}
+          role-to-assume: ${{ inputs.role_arn }}
       - name: Install dependencies
         run: yarn
       - name: CDK deploy
         id: cdk-deploy
         env:
-          ACTION: ${{ github.event.deployment.task }}
-          ENVIRONMENT: ${{ github.event.deployment.environment }}
-          NAMESPACE: ${{ github.event.deployment.payload.namespace }}
+          TASK: ${{ inputs.task }}
+          ENVIRONMENT: ${{ inputs.environment }}
+          NAMESPACE: ${{ inputs.namespace }}
         run:
-          if [ $ACTION == "deploy" ]; then
+          if [ $TASK == "deploy" ]; then
             echo "Running cdk deploy..."
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
             echo "::set-output name=url::$(jq -r '.[].url' cdk.out.json)"
-          elif [ $ACTION == "destroy" ]; then
+          elif [ $TASK == "destroy" ]; then
             if [ $ENVIRONMENT =~ ^prod ]; then
               echo "ERROR! Cannot destroy a production environment!!"
               exit 1
@@ -35,6 +58,8 @@ jobs:
               echo "Running cdk destroy..."
               ./node_modules/.bin/cdk destroy --progress events --force
             fi
+          else
+            echo "ERROR! Unrecognized task $TASK."
           fi
       - name: Update deployment status
         uses: bobheadxi/deployments@v1.2.0
@@ -43,6 +68,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: finish
           status: ${{ job.status }}
-          env: ${{ github.event.deployment.environment }}
+          env: ${{ inputs.environment }}
           env_url: ${{ steps.cdk-deploy.outputs.url }}
-          deployment_id: ${{ github.event.deployment.id }}
+          deployment_id: ${{ inputs.deployment_id }}
