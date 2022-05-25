@@ -71,7 +71,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: finish
-          status: ${{ inputs.task == "deploy" && job.status || "inactive" }}
+          status: ${{ inputs.task == 'deploy' && job.status || 'inactive' }}
           env: ${{ inputs.environment }}
           env_url: ${{ steps.cdk-deploy.outputs.url }}
           deployment_id: ${{ inputs.deployment_id }}
