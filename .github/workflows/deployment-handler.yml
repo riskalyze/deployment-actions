@@ -24,7 +24,7 @@ on:
         type: string
 
 jobs:
-  deploy:
+  handler:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -43,8 +43,8 @@ jobs:
           role-to-assume: ${{ inputs.role_arn }}
       - name: Install dependencies
         run: yarn
-      - name: CDK deploy
-        id: cdk-deploy
+      - name: CDK
+        id: cdk
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           NAMESPACE: ${{ inputs.namespace }}
@@ -83,7 +83,7 @@ jobs:
           step: finish
           status: ${{ job.status }}
           env: ${{ inputs.environment }}
-          env_url: ${{ steps.cdk-deploy.outputs.url }}
+          env_url: ${{ steps.cdk.outputs.url }}
           deployment_id: ${{ inputs.deployment_id }}
       - name: Update deployment status (destroy)
         uses: bobheadxi/deployments@v1.2.0
