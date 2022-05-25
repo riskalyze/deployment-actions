@@ -60,8 +60,8 @@ jobs:
         env:
           ACCOUNT: ${{ inputs.account }}
           NAMESPACE: ${{ inputs.namespace }}
-        run: |-
-          ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json ${{ inputs.stacks != "" && inputs.stacks || "--all" }}
+        run: |- # TODO: Parse stacks and use it here
+          ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json
           echo "::set-output name=url::$(jq -r '.[].url' cdk.out.json)"
       - name: Update deployment status
         uses: bobheadxi/deployments@v1.2.0
