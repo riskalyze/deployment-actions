@@ -85,7 +85,6 @@ jobs:
           env: ${{ inputs.environment }}
           env_url: ${{ steps.cdk.outputs.url }}
           deployment_id: ${{ inputs.deployment_id }}
-          auto_inactive: false
       - name: Update deployment status (destroy)
         uses: bobheadxi/deployments@v1.2.0
         if: always() && inputs.task == 'destroy'
@@ -94,4 +93,3 @@ jobs:
           step: deactivate-env
           env: ${{ inputs.environment }}
           deployment_id: ${{ inputs.deployment_id }}
-          auto_inactive: false
