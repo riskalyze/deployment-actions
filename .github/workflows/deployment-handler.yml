@@ -53,8 +53,11 @@ jobs:
         run: |
           set -ueo pipefail
           if [ "$ENV_VARS != "" ]; then
-            # TODO: Split the vars on , and export
-            echo "$ENV_VARS"
+            IFS=','
+            read -a vars <<< "$ENV_VARS"
+            for val in "${vars[@]}"; do
+              printf "$val\n"
+            done
           fi
           if [ "$STACKS" != "" ]; then
               stack_arg=$STACKS
