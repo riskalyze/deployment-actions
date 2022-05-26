@@ -1,6 +1,9 @@
 on:
   workflow_call:
     inputs:
+      account_name:
+        required: true
+        type: string
       deployment_id:
         required: true
         type: number
@@ -46,6 +49,7 @@ jobs:
       - name: CDK
         id: cdk
         env:
+          ACCOUNT_NAME: ${{ inputs.account_name }}
           ENVIRONMENT: ${{ inputs.environment }}
           NAMESPACE: ${{ inputs.namespace }}
           STACKS: ${{ inputs.stacks }}
