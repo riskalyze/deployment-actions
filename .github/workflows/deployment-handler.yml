@@ -51,12 +51,13 @@ jobs:
           STACKS: ${{ inputs.stacks }}
           TASK: ${{ inputs.task }}
         run: |
-          set -ueox pipefail
-          if [ "$ENV_VARS != "" ]; then
+          set -ueo pipefail
+          if [ "$ENV_VARS" != "" ]; then
             IFS=','
-            read -a vars <<< "$ENV_VARS"
+            read -r -a vars <<< "$ENV_VARS"
             for val in "${vars[@]}"; do
-              printf "$val\n"
+              printf "%s\n" "$val"
+              export "$val"
             done
           fi
           if [ "$STACKS" != "" ]; then
