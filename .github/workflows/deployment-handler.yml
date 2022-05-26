@@ -95,10 +95,8 @@ jobs:
           env_url: ${{ steps.cdk.outputs.url }}
           deployment_id: ${{ inputs.deployment_id }}
       - name: Update deployment status (destroy)
-        uses: bobheadxi/deployments@v1.2.0
-        if: always() && inputs.task == 'destroy'
+        uses: strumwolf/delete-deployment-environment@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          step: deactivate-env
-          env: ${{ inputs.environment }}
-          deployment_id: ${{ inputs.deployment_id }}
+          environment: ${{ inputs.environment }}
+          onlyRemoveDeployments: true
