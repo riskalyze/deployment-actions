@@ -81,6 +81,7 @@ jobs:
           fi
       - name: Upload outputs artifact
         uses: actions/upload-artifact@v3
+        if: inputs.task == 'deploy'
         with:
           name: cdk.out.json
           path: cdk.out.json
