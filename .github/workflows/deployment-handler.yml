@@ -75,6 +75,11 @@ jobs:
           else
             echo "ERROR! Unrecognized action $TASK."
           fi
+      - name: Upload outputs artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: cdk.out.json
+          path: cdk.out.json
       - name: Update deployment status (deploy)
         uses: bobheadxi/deployments@v1.2.0
         if: always() && inputs.task == 'deploy'
