@@ -47,7 +47,7 @@ jobs:
         id: cdk
         env:
           ENVIRONMENT: ${{ inputs.environment }}
-          ENV_VARS: ${{ inputs.env_vars }}
+          ENV_VARS: '${{ inputs.env_vars }}'
           STACKS: ${{ inputs.stacks }}
           TASK: ${{ inputs.task }}
         run: |
