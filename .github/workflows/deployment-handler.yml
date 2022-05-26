@@ -51,7 +51,7 @@ jobs:
           STACKS: ${{ inputs.stacks }}
           TASK: ${{ inputs.task }}
         run: |
-          set -ueo pipefail
+          set -ueox pipefail
           if [ "$ENV_VARS != "" ]; then
             IFS=','
             read -a vars <<< "$ENV_VARS"
