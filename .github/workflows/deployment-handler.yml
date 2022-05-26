@@ -5,7 +5,7 @@ on:
         required: true
         type: string
       deployment_id:
-        required: true
+        required: false
         type: number
       environment:
         required: true
@@ -87,7 +87,7 @@ jobs:
           path: cdk.out.json
       - name: Update deployment status (deploy)
         uses: bobheadxi/deployments@v1.2.0
-        if: always() && inputs.task == 'deploy'
+        if: always() && inputs.task == 'deploy' && inputs.deployment_id != ''
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           step: finish
