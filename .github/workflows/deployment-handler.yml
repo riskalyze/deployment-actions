@@ -1,17 +1,14 @@
 on:
   workflow_call:
     inputs:
-      account_name:
-        required: true
-        type: string
       deployment_id:
         required: false
         type: number
       environment:
         required: true
         type: string
-      namespace:
-        required: true
+      env_vars:
+        required: false
         type: string
       region:
         required: true
@@ -49,13 +46,18 @@ jobs:
       - name: CDK
         id: cdk
         env:
-          ACCOUNT_NAME: ${{ inputs.account_name }}
           ENVIRONMENT: ${{ inputs.environment }}
-          NAMESPACE: ${{ inputs.namespace }}
+          ENV_VARS: ${{ inputs.env_vars }}
           STACKS: ${{ inputs.stacks }}
           TASK: ${{ inputs.task }}
         run: |
           set -ueo pipefail
+          if [ "$ENV_VARS != "" ]; then
+            for s in $(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" <<< "$ENV_VARS"); do
+              echo "$s"
+              export "$s"
+            done
+          fi
           if [ "$STACKS" != "" ]; then
               stack_arg=$STACKS
             else
