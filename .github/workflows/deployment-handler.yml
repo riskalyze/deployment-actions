@@ -47,16 +47,14 @@ jobs:
         id: cdk
         env:
           ENVIRONMENT: ${{ inputs.environment }}
-          ENV_VARS: ${{ fromJSON(inputs.env_vars) }}
+          ENV_VARS: ${{ inputs.env_vars }}
           STACKS: ${{ inputs.stacks }}
           TASK: ${{ inputs.task }}
         run: |
           set -ueo pipefail
           if [ "$ENV_VARS != "" ]; then
-            for s in $(jq -r "to_entries|map(\"\(.key)=\(.value|tostring)\")|.[]" <<< "$ENV_VARS"); do
-              echo "$s"
-              export "$s"
-            done
+            # TODO: Split the vars on , and export
+            echo "$ENV_VARS"
           fi
           if [ "$STACKS" != "" ]; then
               stack_arg=$STACKS

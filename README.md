@@ -71,15 +71,14 @@ actions on any environment name starting with `prod` will fail.
 ### Setting environment variables
 
 Some CDK stacks may rely on environment variables to influence how resources are created. This workflow lets you pass an
-optional JSON string of environment variables to use:
+optional comma-separated list of environment variables to use:
 
 ```yaml
 jobs:
   deploy:
-    name: Deploy to production
     uses: byerobot/cdk-action/.github/workflows/deployment-handler.yml@main
     with:
-      env_vars: '{"ACCOUNT_NAME": "prod"}'
+      env_vars: ACCOUNT_NAME=prod,NAMESPACE=foo
 ```
 
 These will be parsed and set in the environment for the CDK deploy/destroy step.
