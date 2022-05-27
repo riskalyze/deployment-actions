@@ -72,10 +72,10 @@ jobs:
             done
           fi
           if [ "$STACKS" != "" ]; then
-              stack_arg=$STACKS
-            else
-              stack_arg="--all"
-            fi
+            stack_arg=$STACKS
+          else
+            stack_arg="--all"
+          fi
           if [ "$TASK" == "deploy" ]; then
             echo "Running cdk deploy..."
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json $stack_arg
