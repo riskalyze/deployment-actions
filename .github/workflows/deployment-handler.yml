@@ -25,7 +25,6 @@ on:
 
 jobs:
   handler:
-#    environment: ${{ inputs.environment }}
     concurrency: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     permissions:
