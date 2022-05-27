@@ -54,46 +54,14 @@ jobs:
           role-to-assume: ${{ inputs.role_arn }}
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.dependency-command }}
-      - name: CDK
+      - name: Run CDK command
         id: cdk
         env:
           ENVIRONMENT: ${{ inputs.environment }}
           ENV_VARS: ${{ inputs.env_vars }}
           STACKS: ${{ inputs.stacks }}
           TASK: ${{ inputs.task }}
-        run: |
-          set -ueo pipefail
-          if [ "$ENV_VARS" != "" ]; then
-            IFS=','
-            read -r -a vars <<< "$ENV_VARS"
-            for val in "${vars[@]}"; do
-              printf "%s\n" "$val"
-              export "$val"
-            done
-          fi
-          if [ "$STACKS" != "" ]; then
-            stack_arg=$STACKS
-          else
-            stack_arg="--all"
-          fi
-          if [ "$TASK" == "deploy" ]; then
-            echo "Running cdk deploy..."
-            ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json $stack_arg
-            url=$(jq -r '.[].url' cdk.out.json)
-            if [ "$url" != "null" ]; then
-              echo "::set-output name=url::$url"
-            fi
-          elif [ "$TASK" == "destroy" ]; then
-            if [[ "$ENVIRONMENT" =~ ^prod ]]; then
-              echo "ERROR! Cannot destroy a production environment!!"
-              exit 1
-            else
-              echo "Running cdk destroy..."
-              ./node_modules/.bin/cdk destroy --progress events --force $stack_arg
-            fi
-          else
-            echo "ERROR! Unrecognized action $TASK."
-          fi
+        run: ./.github/scripts/run-cdk-command.sh
       - name: Upload outputs artifact
         uses: actions/upload-artifact@v3
         if: inputs.task == 'deploy'
