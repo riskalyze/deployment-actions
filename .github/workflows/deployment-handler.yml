@@ -25,6 +25,7 @@ on:
 
 jobs:
   handler:
+    environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
