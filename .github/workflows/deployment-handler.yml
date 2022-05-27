@@ -26,7 +26,7 @@ on:
 jobs:
   handler:
     concurrency: ${{ inputs.environment }}
-    environment: ${{ inputs.deployment_id == '' && inputs.environment || '' }}
+    environment: ${{ inputs.deployment_id == '' && inputs.environment || null }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
