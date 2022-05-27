@@ -101,15 +101,13 @@ jobs:
           name: cdk.out.json
           path: cdk.out.json
       - name: Update deployment status (deploy)
-        uses: bobheadxi/deployments@v1.2.0
         if: always() && inputs.task == 'deploy' && inputs.deployment_id != ''
+        uses: chrnorm/deployment-status@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          step: finish
-          status: ${{ job.status }}
-          env: ${{ inputs.environment }}
-          env_url: ${{ steps.cdk.outputs.url }}
-          deployment_id: ${{ inputs.deployment_id }}
+          environment-url: ${{ steps.cdk.outputs.url }}
+          state: ${{ job.status }}
+          deployment-id: ${{ inputs.deployment_id }}
       - name: Update deployment status (destroy)
         uses: strumwolf/delete-deployment-environment@v2
         if: always() && inputs.task == 'destroy'
