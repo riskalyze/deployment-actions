@@ -34,17 +34,26 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v3
+      - id: detect-package-manager
+        run: |
+          if [ -f yarn.lock ]; then
+            echo '::set-output name=cache-type::yarn'
+            echo '::set-output name=dependency-command::yarn'
+          else
+            echo '::set-output name=cache-type::npm'
+            echo '::set-output name=dependency-command::"npm ci"'
+          fi
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: yarn
+          cache: ${{ steps.detect-package-manager.outputs.cache-type }}
       - name: Assume AWS role
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-region: ${{ inputs.region }}
           role-to-assume: ${{ inputs.role_arn }}
       - name: Install dependencies
-        run: yarn
+        run: ${{ steps.detect-package-manager.outputs.dependency-command }}
       - name: CDK
         id: cdk
         env:
