@@ -1,11 +1,12 @@
-# cdk-action
+# actions
 
-A GitHub action for deploying with [CDK](https://aws.amazon.com/cdk/)
+A collection of reusable GitHub actions, primarily for deploying with [CDK](https://aws.amazon.com/cdk/)
 
 ## Overview
 
-This repo provides a reusable workflow ([deployment-handler.yml](./.github/workflows/deployment-handler.yml))
-that rolls up several common CDK deployment steps:
+This repo provides a few [reusable workflows](./.github/workflows).
+
+### `deployment-handler.yml`
 
 - Checkout repo
 - Set up node with caching
@@ -18,7 +19,7 @@ that rolls up several common CDK deployment steps:
 
 This workflow is recommended to be used in one of two manners:
 
-### On `deployment` events
+#### On `deployment` events
 
 If you have some way of
 creating [GitHub deployments](https://docs.github.com/en/rest/deployments/deployments#about-the-deployments-api),
@@ -39,7 +40,7 @@ jobs:
       task: '${{ github.event.deployment.task }}'
 ```
 
-### On `push` events
+#### On `push` events
 
 This is a common workflow if you want to deploy to Prod on push to master, for example:
 
@@ -63,12 +64,12 @@ jobs:
       stacks: my-stack
 ```
 
-### Destroying environments
+#### Destroying environments
 
 To destroy an environment, use `task: destroy` when calling this workflow. **IMPORTANT NOTE**: as a safeguard, destroy
 actions on any environment name starting with `prod` will fail.
 
-### Setting environment variables
+#### Setting environment variables
 
 Some CDK stacks may rely on environment variables to influence how resources are created. This workflow lets you pass an
 optional comma-separated list of environment variables to use:
