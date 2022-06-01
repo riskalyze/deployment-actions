@@ -65,7 +65,8 @@ runs:
   - name: Install dependencies
     shell: bash
     run: ${{ steps.detect-package-manager.outputs.dependency-command }}
-  - run: cdk-deploy.sh
+  - name: CDK ${{ inputs.task }}
+    run: cdk-deploy.sh
     id: cdk
     env:
       ENVIRONMENT: ${{ inputs.environment }}

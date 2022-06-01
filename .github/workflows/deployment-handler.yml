@@ -76,27 +76,51 @@ jobs:
       with:
         namespace: ${{ inputs.namespace }}
 
+  eks-deploy:
+    name: EKS ${{ inputs.task }}
+    concurrency: eks-${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    needs:
+    - helm-template
+#    - docker-build # TODO
+    runs-on: ubuntu-latest
+    steps:
+      - uses: byerobot/actions/eks-deploy@main
+        with:
+          cluster: ${{ inputs.account-name }}
+          environment: ${{ inputs.environment }}
+          namespace: ${{ inputs.namespace }}
+          region: ${{ inputs.region }}
+          role_arn: ${{ inputs.cdk-role-arn }}
+          task: ${{ inputs.task }}
+          twingate-service-key: ${{ secrets.twingate-service-key }}
+
   update-deployment:
     name: Update deployment
     needs:
     - cdk-deploy
+    - eks-deploy
     runs-on: ubuntu-latest
     permissions:
       deployments: write
     steps:
-    # TODO: Calculate result from all deploy steps and use below
-    - name: debug
+    - id: get-state
       run: |
-        echo ${{ inputs.task }}
-        echo ${{ inputs.deployment_id }}
+        if [[ ${{ needs.cdk-deploy.result }} == 'success' ]] && [[ ${{ needs.eks-deploy.result }} == 'success' ]]; then
+          echo "::set-output name=state::success"
+        else
+          echo "::set-output name=state::failure"
+        fi
     - name: Update deployment status (deploy)
-      if: inputs.task == 'deploy' && inputs.deployment_id != ''
+      if: inputs.task == 'deploy' && inputs.deployment-id != ''
       uses: chrnorm/deployment-status@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         environment-url: ${{ needs.cdk-deploy.outputs.url }}
-        state: ${{ needs.cdk-deploy.result }}
-        deployment-id: ${{ inputs.deployment_id }}
+        state: ${{ steps.get-state.outputs.state }}
+        deployment-id: ${{ inputs.deployment-id }}
     - name: Update deployment status (destroy)
       uses: strumwolf/delete-deployment-environment@v2
       if: inputs.task == 'destroy'
