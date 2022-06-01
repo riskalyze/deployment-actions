@@ -10,7 +10,6 @@ on:
 
 jobs:
   ecr-build-push:
-    needs: deploy
     name: Build and push docker image to ECR
     runs-on: ubuntu-latest
     permissions:
