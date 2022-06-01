@@ -1,0 +1,39 @@
+name: Helm template action
+description: Template Kubernetes resources using Helm
+
+inputs:
+  namespace:
+    description: The namespace to use.
+    required: true
+  path:
+    description: The path to the helm chart.
+    required: false
+    default: infra/helm/REPO_NAME
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v3
+  - uses: azure/setup-helm@v1
+    with:
+      version: '3.9.0'
+  - name: Get path
+    id: path
+    env:
+      PATH: ${{ inputs.path }}
+      REPO: ${{ github.repository }}
+    shell: bash
+    run: |
+      if [ "$PATH" != '' ]; then
+        echo "::set-output name=path::$PATH"
+      else
+        echo "::set-output name=path::./infra/helm/${REPO/*\//}"
+      fi
+  - name: Helm template
+    shell: bash
+    run: helm template ${{ steps.path.outputs.path }} --namespace ${{ inputs.namespace }} --output-dir ./manifests
+  - name: Upload manifests
+    uses: actions/upload-artifact@v3
+    with:
+      name: manifests
+      path: ./manifests/

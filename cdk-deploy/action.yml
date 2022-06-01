@@ -1,5 +1,6 @@
 name: CDK deploy action
 description: Deploys or destroys AWS infrastructure using CDK
+
 inputs:
   environment:
     description: The environment to deploy into, i.e. "production".
@@ -19,10 +20,13 @@ inputs:
   task:
     description: The task to perform, i.e. "deploy" or "destroy".
     required: true
+
 runs:
   using: "composite"
   steps:
   - uses: actions/checkout@v3
+  - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    shell: bash
   - name: Detect package manager
     id: detect-package-manager
     shell: bash
@@ -56,7 +60,7 @@ runs:
   - name: Install dependencies
     shell: bash
     run: ${{ steps.detect-package-manager.outputs.dependency-command }}
-  - name: Run CDK command
+  - run: cdk-deploy.sh
     id: cdk
     env:
       ENVIRONMENT: ${{ inputs.environment }}
@@ -64,35 +68,6 @@ runs:
       STACKS: ${{ inputs.stacks }}
       TASK: ${{ inputs.task }}
     shell: bash
-    run: |
-      set -ueo pipefail
-      if [ "$ENV_VARS" != "" ]; then
-        IFS=','
-        read -r -a vars <<< "$ENV_VARS"
-        for val in "${vars[@]}"; do
-          printf "%s\n" "$val"
-          export "$val"
-        done
-      fi
-      if [ "$STACKS" != "" ]; then
-        stack_arg=$STACKS
-      else
-        stack_arg="--all"
-      fi
-      if [ "$TASK" == "deploy" ]; then
-        echo "Running cdk deploy..."
-        ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json $stack_arg
-      elif [ "$TASK" == "destroy" ]; then
-        if [[ "$ENVIRONMENT" =~ ^prod ]]; then
-          echo "ERROR! Cannot destroy a production environment!!"
-          exit 1
-        else
-          echo "Running cdk destroy..."
-          ./node_modules/.bin/cdk destroy --progress events --force $stack_arg
-        fi
-      else
-        echo "ERROR! Unrecognized action $TASK."
-      fi
   - name: Upload outputs artifact
     uses: actions/upload-artifact@v3
     if: inputs.task == 'deploy'
