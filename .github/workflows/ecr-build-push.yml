@@ -1,6 +1,18 @@
 on:
   workflow_call:
     inputs:
+      codeartifact_domain:
+        required: false
+        type: string
+      codeartifact_domain_owner:
+        required: false
+        type: string
+      codeartifact_namespace:
+        required: false
+        type: string
+      codeartifact_repository:
+        required: false
+        type: string
       region:
         required: true
         type: string
@@ -37,6 +49,15 @@ jobs:
       id: create-ecr-repo
       with:
         repository: ${{ steps.ecr-repo-name.outputs.repo-name }}
+    - name: Authenticate with CodeArtifact
+      if: inputs.codeartifact_repository != ''
+      run: |
+        aws codeartifact login \
+          --tool npm \
+          --domain ${{ inputs.codeartifact_domain }} \
+          --domain-owner ${{ inputs.codeartifact_domain_owner }} \
+          --namespace ${{ inputs.codeartifact_namespace }} \
+          --repository ${{ inputs.codeartifact_repository }}
     - name: Build and push
       uses: docker/build-push-action@v3
       with:
@@ -45,3 +66,5 @@ jobs:
         tags: ${{ steps.create-ecr-repo.outputs.repository-uri }}:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+        secret-files: |
+          "npmrc=./.npmrc"
