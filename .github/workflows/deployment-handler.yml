@@ -58,11 +58,11 @@ jobs:
       - uses: byerobot/actions/cdk-deploy@main
         id: cdk-deploy
         with:
-          env_vars: 'ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}'
-          environment: '${{ inputs.environment }}'
-          region: '${{ inputs.region }}'
-          role_arn: '${{ inputs.cdk-role-arn }}'
-          task: '${{ inputs.task }}'
+          env_vars: ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}
+          environment: ${{ inputs.environment }}
+          region: ${{ inputs.region }}
+          role_arn: ${{ inputs.cdk-role-arn }}
+          task: ${{ inputs.task }}
     outputs:
       url: ${{ steps.cdk-deploy.outputs.url }}
 
@@ -74,7 +74,7 @@ jobs:
     steps:
     - uses: byerobot/actions/helm-template@main
       with:
-        namespace: '${{ inputs.namespace }}'
+        namespace: ${{ inputs.namespace }}
 
   update-deployment:
     name: Update deployment
@@ -85,6 +85,10 @@ jobs:
       deployments: write
     steps:
     # TODO: Calculate result from all deploy steps and use below
+    - name: debug
+      run: |
+        echo ${{ inputs.task }}
+        echo ${{ inputs.deployment_id }}
     - name: Update deployment status (deploy)
       if: inputs.task == 'deploy' && inputs.deployment_id != ''
       uses: chrnorm/deployment-status@v2
