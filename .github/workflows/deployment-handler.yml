@@ -71,19 +71,20 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: byerobot/actions/cdk-deploy@main
-        id: cdk-deploy
-        with:
-          env_vars: ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}
-          environment: ${{ inputs.environment }}
-          region: ${{ inputs.region }}
-          role_arn: ${{ inputs.cdk-role-arn }}
-          task: ${{ inputs.task }}
+    - uses: byerobot/actions/cdk-deploy@main
+      id: cdk-deploy
+      with:
+        env_vars: ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}
+        environment: ${{ inputs.environment }}
+        region: ${{ inputs.region }}
+        role_arn: ${{ inputs.cdk-role-arn }}
+        task: ${{ inputs.task }}
     outputs:
       url: ${{ steps.cdk-deploy.outputs.url }}
 
   ecr-build-push:
     name: ECR build+push
+    needs: detect-files
     if: needs.detect-files.outputs.docker == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -101,6 +102,7 @@ jobs:
 
   helm-template:
     name: Helm template
+    needs: detect-files
     if: needs.detect-files.outputs.helm == 'true'
     runs-on: ubuntu-latest
     permissions:
@@ -111,26 +113,27 @@ jobs:
         namespace: ${{ inputs.namespace }}
 
   eks-deploy:
-    name: EKS ${{ inputs.task }}
+    name: EKS deploy
     if: needs.detect-files.outputs.helm == 'true'
     concurrency: eks-${{ inputs.environment }}
     permissions:
       contents: read
       id-token: write
     needs:
+    - detect-files
     - helm-template
     - ecr-build-push
     runs-on: ubuntu-latest
     steps:
-      - uses: byerobot/actions/eks-deploy@main
-        with:
-          cluster: ${{ inputs.account-name }}
-          environment: ${{ inputs.environment }}
-          namespace: ${{ inputs.namespace }}
-          region: ${{ inputs.region }}
-          role_arn: ${{ inputs.cdk-role-arn }}
-          task: ${{ inputs.task }}
-          twingate-service-key: ${{ secrets.twingate-service-key }}
+    - uses: byerobot/actions/eks-deploy@main
+      with:
+        cluster: ${{ inputs.account-name }}
+        environment: ${{ inputs.environment }}
+        namespace: ${{ inputs.namespace }}
+        region: ${{ inputs.region }}
+        role_arn: ${{ inputs.cdk-role-arn }}
+        task: ${{ inputs.task }}
+        twingate-service-key: ${{ secrets.twingate-service-key }}
 
   update-deployment:
     name: Update deployment
