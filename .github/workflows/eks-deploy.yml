@@ -45,6 +45,9 @@ jobs:
           aws eks update-kubeconfig \
             --name ${{ inputs.cluster }} \
             --region ${{ inputs.region }}
+      - uses: twingate/github-action@v1
+        with:
+          service-key: ${{ secrets.TWINGATE_SERVICE_KEY }}
       - name: Kubectl apply
         env:
           ENVIRONMENT: ${{ inputs.environment }}
