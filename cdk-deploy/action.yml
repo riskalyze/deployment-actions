@@ -1,0 +1,101 @@
+name: CDK deploy action
+description: Deploys or destroys AWS infrastructure using CDK
+inputs:
+  environment:
+    description: The environment to deploy into, i.e. "production".
+    required: true
+  env_vars:
+    description: A comma-separated list of environment variables that will be passed to CDK commands.
+    required: false
+  region:
+    description: The AWS region to deploy into.
+    required: true
+  role_arn:
+    description: An AWS role ARN that will be assumed for CDK operations.
+    required: true
+  stacks:
+    description: An optional list of stacks to deploy. Defaults to "--all" if none are given.
+    required: false
+  task:
+    description: The task to perform, i.e. "deploy" or "destroy".
+    required: true
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v3
+  - name: Detect package manager
+    id: detect-package-manager
+    shell: bash
+    run: |
+      if [ -f yarn.lock ]; then
+        echo '::set-output name=cache-type::yarn'
+        echo '::set-output name=dependency-command::yarn'
+      else
+        echo '::set-output name=cache-type::npm'
+        echo '::set-output name=dependency-command::"npm ci"'
+      fi
+  - uses: actions/setup-node@v3
+    with:
+      node-version: 16
+      cache: ${{ steps.detect-package-manager.outputs.cache-type }}
+  - name: Assume AWS role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.region }}
+      role-to-assume: ${{ inputs.role_arn }}
+  - name: Authenticate with CodeArtifact
+    if: inputs.codeartifact_repository != ''
+    shell: bash
+    run: |
+      aws codeartifact login \
+        --tool npm \
+        --domain ${{ inputs.codeartifact_domain }} \
+        --domain-owner ${{ inputs.codeartifact_domain_owner }} \
+        --namespace ${{ inputs.codeartifact_namespace }} \
+        --repository ${{ inputs.codeartifact_repository }}
+  - name: Install dependencies
+    shell: bash
+    run: ${{ steps.detect-package-manager.outputs.dependency-command }}
+  - name: Run CDK command
+    id: cdk
+    env:
+      ENVIRONMENT: ${{ inputs.environment }}
+      ENV_VARS: ${{ inputs.env_vars }}
+      STACKS: ${{ inputs.stacks }}
+      TASK: ${{ inputs.task }}
+    shell: bash
+    run: |
+      set -ueo pipefail
+      if [ "$ENV_VARS" != "" ]; then
+        IFS=','
+        read -r -a vars <<< "$ENV_VARS"
+        for val in "${vars[@]}"; do
+          printf "%s\n" "$val"
+          export "$val"
+        done
+      fi
+      if [ "$STACKS" != "" ]; then
+        stack_arg=$STACKS
+      else
+        stack_arg="--all"
+      fi
+      if [ "$TASK" == "deploy" ]; then
+        echo "Running cdk deploy..."
+        ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json $stack_arg
+      elif [ "$TASK" == "destroy" ]; then
+        if [[ "$ENVIRONMENT" =~ ^prod ]]; then
+          echo "ERROR! Cannot destroy a production environment!!"
+          exit 1
+        else
+          echo "Running cdk destroy..."
+          ./node_modules/.bin/cdk destroy --progress events --force $stack_arg
+        fi
+      else
+        echo "ERROR! Unrecognized action $TASK."
+      fi
+  - name: Upload outputs artifact
+    uses: actions/upload-artifact@v3
+    if: inputs.task == 'deploy'
+    with:
+      name: cdk.out.json
+      path: cdk.out.json

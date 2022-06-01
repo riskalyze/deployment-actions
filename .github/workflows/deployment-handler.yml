@@ -45,51 +45,47 @@ on:
         required: false
 
 jobs:
-  docker-build:
-    name: Build and push Docker image
-    uses: byerobot/actions/.github/workflows/ecr-build-push.yml@main
-    with:
-      codeartifact_domain: ${{ inputs.codeartifact-domain }}
-      codeartifact_domain_owner: ${{ inputs.codeartifact-domain-owner }}
-      codeartifact_namespace: ${{ inputs.codeartifact-namespace }}
-      codeartifact_repository: ${{ inputs.codeartifact-repository }}
-      region: ${{ inputs.region }}
-      role_arn: ${{ inputs.ecr-role-arn }}
   cdk-deploy:
     name: CDK ${{ inputs.task }}
-    uses: byerobot/actions/.github/workflows/cdk-deploy.yml@main
-    with:
-      env_vars: 'ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}'
-      environment: '${{ inputs.environment }}'
-      region: '${{ inputs.region }}'
-      role_arn: '${{ inputs.cdk-role-arn }}'
-      task: '${{ inputs.task }}'
-  generate-manifests:
-    name: Generate Kubernetes manifests
+    concurrency: cdk-${{ inputs.environment }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-    - uses: actions/checkout@v3
-    - uses: azure/setup-helm@v1
-      with:
-        version: '3.9.0'
-    - name: Helm template
-      run: helm template ./infra/helm/* --namespace ${{ inputs.namespace }} --output-dir ./manifests
-    - name: Upload manifests
-      uses: actions/upload-artifact@v3
-      with:
-        name: manifests
-        path: ./manifests/
-  eks-deploy:
-    name: EKS ${{ inputs.task }}
-    needs:
-    - generate-manifests
-    - docker-build
-    uses: byerobot/actions/.github/workflows/eks-deploy.yml@main
-    with:
-      cluster: '${{ inputs.account-name }}'
-      environment: '${{ inputs.environment }}'
-      region: '${{ inputs.region }}'
-      role_arn: '${{ inputs.cdk-role-arn }}'
-      task: '${{ inputs.task }}'
-    secrets:  
-      twingate-service-key: ${{ secrets.twingate-service-key }}
+      - uses: byerobot/actions/cdk-deploy@main
+        with:
+          env_vars: 'ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}'
+          environment: '${{ inputs.environment }}'
+          region: '${{ inputs.region }}'
+          role_arn: '${{ inputs.cdk-role-arn }}'
+          task: '${{ inputs.task }}'
+  # generate-manifests:
+  #   name: Generate Kubernetes manifests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - uses: azure/setup-helm@v1
+  #     with:
+  #       version: '3.9.0'
+  #   - name: Helm template
+  #     run: helm template ./infra/helm/* --namespace ${{ inputs.namespace }} --output-dir ./manifests
+  #   - name: Upload manifests
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: manifests
+  #       path: ./manifests/
+  # eks-deploy:
+  #   name: EKS ${{ inputs.task }}
+  #   needs:
+  #   - generate-manifests
+  #   - docker-build
+  #   uses: byerobot/actions/.github/workflows/eks-deploy.yml@main
+  #   with:
+  #     cluster: '${{ inputs.account-name }}'
+  #     environment: '${{ inputs.environment }}'
+  #     region: '${{ inputs.region }}'
+  #     role_arn: '${{ inputs.cdk-role-arn }}'
+  #     task: '${{ inputs.task }}'
+  #   secrets:  
+  #     twingate-service-key: ${{ secrets.twingate-service-key }}
