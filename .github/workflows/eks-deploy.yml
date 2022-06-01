@@ -19,6 +19,9 @@ on:
       task:
         required: true
         type: string
+    secrets:
+      twingate-service-key:
+        required: false
 
 jobs:
   eks-deploy:
@@ -45,9 +48,11 @@ jobs:
           aws eks update-kubeconfig \
             --name ${{ inputs.cluster }} \
             --region ${{ inputs.region }}
-      - uses: twingate/github-action@v1
+      - name: Connect to Twingate
+        uses: twingate/github-action@v1
+        if: secrets.twingate-service-key != ''
         with:
-          service-key: ${{ secrets.TWINGATE_SERVICE_KEY }}
+          service-key: ${{ secrets.twingate-service-key }}
       - name: Kubectl apply
         env:
           ENVIRONMENT: ${{ inputs.environment }}
