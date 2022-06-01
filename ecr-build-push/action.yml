@@ -18,7 +18,7 @@ inputs:
     description: The region to use for ECR.
     required: true
   role-arn:
-    description: A role to assume for publishing to ECR.
+    description: A role to assume for pulling packages from Codeartifact and publishing to ECR.
     required: true
 
 runs:
