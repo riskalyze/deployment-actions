@@ -10,9 +10,6 @@ on:
       namespace:
         required: false
         type: string
-      path:
-        required: true
-        type: string
       region:
         required: true
         type: string
@@ -34,6 +31,10 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v3
+      - name: Download manifests
+        uses: actions/download-artifact@v3
+        with:
+          name: manifests
       - name: Assume AWS role
         uses: aws-actions/configure-aws-credentials@v1
         with:
