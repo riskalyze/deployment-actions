@@ -6,7 +6,7 @@ if [ "$ENV_VARS" != "" ]; then
   read -r -a vars <<< "$ENV_VARS"
   for val in "${vars[@]}"; do
     printf "%s\n" "$val"
-    export val
+    export "${val?}"
   done
   echo "$NAMESPACE"
 fi
