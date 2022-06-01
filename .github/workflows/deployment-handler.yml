@@ -1,3 +1,5 @@
+name: Deployment handler
+
 on:
   workflow_call:
     inputs:
@@ -54,19 +56,51 @@ jobs:
       id-token: write
     steps:
       - uses: byerobot/actions/cdk-deploy@main
+        id: cdk-deploy
         with:
           env_vars: 'ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}'
           environment: '${{ inputs.environment }}'
           region: '${{ inputs.region }}'
           role_arn: '${{ inputs.cdk-role-arn }}'
           task: '${{ inputs.task }}'
+    outputs:
+      url: ${{ steps.cdk-deploy.outputs.url }}
+
   helm-template:
-    name: Template Kubernetes resources using Helm
+    name: Helm template
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
     - uses: byerobot/actions/helm-template@main
+      with:
+        namespace: '${{ inputs.namespace }}'
+
+  update-deployment:
+    name: Update deployment
+    needs:
+    - cdk-deploy
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+    steps:
+    # TODO: Calculate result from all deploy steps and use below
+    - name: Update deployment status (deploy)
+      if: inputs.task == 'deploy' && inputs.deployment_id != ''
+      uses: chrnorm/deployment-status@v2
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        environment-url: ${{ needs.cdk-deploy.outputs.url }}
+        state: ${{ needs.cdk-deploy.result }}
+        deployment-id: ${{ inputs.deployment_id }}
+    - name: Update deployment status (destroy)
+      uses: strumwolf/delete-deployment-environment@v2
+      if: inputs.task == 'destroy'
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        environment: ${{ inputs.environment }}
+        onlyRemoveDeployments: true
+    # TODO: Send notification on failed destroys?
 
   # eks-deploy:
   #   name: EKS ${{ inputs.task }}

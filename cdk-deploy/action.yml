@@ -21,6 +21,11 @@ inputs:
     description: The task to perform, i.e. "deploy" or "destroy".
     required: true
 
+outputs:
+  url:
+    description: The URL parsed from the stack outputs (if any).
+    value: ${{ steps.cdk.outputs.url }}
+
 runs:
   using: "composite"
   steps:

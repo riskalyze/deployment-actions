@@ -17,6 +17,10 @@ fi
 if [ "$TASK" == "deploy" ]; then
   echo "Running cdk deploy..."
   ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json $stack_arg
+  url=$(jq -r '.[].url' cdk.out.json)
+  if [ "$url" != "null" ]; then
+    echo "::set-output name=url::$url"
+  fi
 elif [ "$TASK" == "destroy" ]; then
   if [[ "$ENVIRONMENT" =~ ^prod ]]; then
     echo "ERROR! Cannot destroy a production environment!!"
