@@ -47,8 +47,24 @@ on:
         required: false
 
 jobs:
+  detect-files:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - id: detect-files
+      run: |
+        test -f cdk.json && echo "::set-output name=cdk::true"
+        test -f Dockerfile && echo "::set-output name=docker::true"
+        test -d infra/helm && echo "::set-output name=helm::true"
+    outputs:
+      cdk: ${{ steps.detect-files.outputs.cdk }}
+      docker: ${{ steps.detect-files.outputs.docker }}
+      helm: ${{ steps.detect-files.outputs.helm }}
+
   cdk-deploy:
     name: CDK ${{ inputs.task }}
+    needs: detect-files
+    if: needs.detect-files.outputs.cdk == 'true'
     concurrency: cdk-${{ inputs.environment }}
     runs-on: ubuntu-latest
     permissions:
@@ -66,8 +82,26 @@ jobs:
     outputs:
       url: ${{ steps.cdk-deploy.outputs.url }}
 
+  ecr-build-push:
+    name: ECR build+push
+    if: needs.detect-files.outputs.docker == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+    - uses: byerobot/actions/ecr-build-push@main
+      with:
+        codeartifact-domain: ${{ inputs.codeartifact-domain }}
+        codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
+        codeartifact-namespace: ${{ inputs.codeartifact-namespace }}
+        codeartifact-repository: ${{ inputs.codeartifact-repository }}
+        region: ${{ inputs.region }}
+        role-arn: ${{ inputs.ecr-role-arn }}
+
   helm-template:
     name: Helm template
+    if: needs.detect-files.outputs.helm == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -78,13 +112,14 @@ jobs:
 
   eks-deploy:
     name: EKS ${{ inputs.task }}
+    if: needs.detect-files.outputs.helm == 'true'
     concurrency: eks-${{ inputs.environment }}
     permissions:
       contents: read
       id-token: write
     needs:
     - helm-template
-#    - docker-build # TODO
+    - ecr-build-push
     runs-on: ubuntu-latest
     steps:
       - uses: byerobot/actions/eks-deploy@main
@@ -130,18 +165,3 @@ jobs:
         environment: ${{ inputs.environment }}
         onlyRemoveDeployments: true
     # TODO: Send notification on failed destroys?
-
-  # eks-deploy:
-  #   name: EKS ${{ inputs.task }}
-  #   needs:
-  #   - generate-manifests
-  #   - docker-build
-  #   uses: byerobot/actions/.github/workflows/eks-deploy.yml@main
-  #   with:
-  #     cluster: '${{ inputs.account-name }}'
-  #     environment: '${{ inputs.environment }}'
-  #     region: '${{ inputs.region }}'
-  #     role_arn: '${{ inputs.cdk-role-arn }}'
-  #     task: '${{ inputs.task }}'
-  #   secrets:
-  #     twingate-service-key: ${{ secrets.twingate-service-key }}

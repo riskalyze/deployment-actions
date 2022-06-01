@@ -1,0 +1,68 @@
+name: ECR build and push action
+description: Builds and pushes Docker images to ECR
+
+inputs:
+  codeartifact-domain:
+    description: The Codeartifact domain.
+    required: false
+  codeartifact-domain-owner:
+    description: The Codeartifact domain owner.
+    required: false
+  codeartifact-namespace:
+    description: The Codeartifact namespace.
+    required: false
+  codeartifact-repository:
+    description: The Codeartifact repository.
+    required: false
+  region:
+    description: The region to use for ECR.
+    required: true
+  role-arn:
+    description: A role to assume for publishing to ECR.
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v3
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v2
+  - name: Assume AWS role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.region }}
+      role-to-assume: ${{ inputs.role-arn }}
+  - name: Login to Amazon ECR
+    id: login-ecr
+    uses: aws-actions/amazon-ecr-login@v1
+  - name: Get ECR repo name
+    id: ecr-repo-name
+    env:
+      REPO: ${{ github.repository }}
+    shell: bash
+    run: echo "::set-output name=repo-name::${REPO/*\//}"
+  - name: Create ECR repo
+    uses: byerobot/create-ecr-repository-action@v1
+    id: create-ecr-repo
+    with:
+      repository: ${{ steps.ecr-repo-name.outputs.repo-name }}
+  - name: Authenticate with CodeArtifact
+    if: inputs.codeartifact_repository != ''
+    shell: bash
+    run: |
+      aws codeartifact login \
+        --tool npm \
+        --domain ${{ inputs.codeartifact-domain }} \
+        --domain-owner ${{ inputs.codeartifact-domain_owner }} \
+        --namespace ${{ inputs.codeartifact-namespace }} \
+        --repository ${{ inputs.codeartifact-repository }}
+  - name: Build and push
+    uses: docker/build-push-action@v3
+    with:
+      context: .
+      push: true
+      tags: ${{ steps.create-ecr-repo.outputs.repository-uri }}:${{ github.sha }}
+      cache-from: type=gha
+      cache-to: type=gha,mode=max
+      secret-files: |
+        "npmrc=./.npmrc"
