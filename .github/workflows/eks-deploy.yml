@@ -27,6 +27,8 @@ jobs:
   eks-deploy:
     concurrency: eks-${{ inputs.environment }}
     environment: ${{ inputs.environment }}
+    env:
+      HAS_TWINGATE_SERVICE_KEY: ${{ secrets.twingate-service-key != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -50,7 +52,7 @@ jobs:
             --region ${{ inputs.region }}
       - name: Connect to Twingate
         uses: twingate/github-action@v1
-        if: secrets.twingate-service-key != ''
+        if: ${{ env.HAS_TWINGATE_SERVICE_KEY == 'true' }}
         with:
           service-key: ${{ secrets.twingate-service-key }}
       - name: Kubectl apply
