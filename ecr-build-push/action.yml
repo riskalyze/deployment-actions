@@ -53,7 +53,7 @@ runs:
       aws codeartifact login \
         --tool npm \
         --domain ${{ inputs.codeartifact-domain }} \
-        --domain-owner ${{ inputs.codeartifact-domain_owner }} \
+        --domain-owner ${{ inputs.codeartifact-domain-owner }} \
         --namespace ${{ inputs.codeartifact-namespace }} \
         --repository ${{ inputs.codeartifact-repository }}
   - name: Build and push
