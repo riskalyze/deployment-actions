@@ -17,6 +17,9 @@ inputs:
   namespace:
     description: The namespace to use.
     required: true
+  set-values:
+    description: A comma-separated list of string values to set during templating via --set.
+    required: false
 
 runs:
   using: "composite"
@@ -56,7 +59,17 @@ runs:
     run: helm dep build ${{ steps.chart-dir.outputs.dir }}
   - name: Helm template
     shell: bash
-    run: helm template ${{ steps.chart-dir.outputs.dir }} --namespace ${{ inputs.namespace }} --output-dir ./manifests
+    run: |
+      args=(
+        "${{ steps.chart-dir.outputs.dir }}"
+        "--namespace" "${{ inputs.namespace }}"
+        "--output-dir" "./manifests"
+      )
+      if [ ${{ inputs.set-values != '' ]; then
+        args+=("--set" "${{ inputs.set-values }}")
+      fi
+      echo "Running helm template ${args[@]}..."
+      helm template "${args[@]}"
   - name: Upload manifests
     uses: actions/upload-artifact@v3
     with:
