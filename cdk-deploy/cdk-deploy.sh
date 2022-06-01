@@ -8,6 +8,7 @@ if [ "$ENV_VARS" != "" ]; then
     printf "%s\n" "$val"
     export val
   done
+  echo "$NAMESPACE"
 fi
 if [ "$STACKS" != "" ]; then
   stack_arg=$STACKS
