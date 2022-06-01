@@ -65,4 +65,4 @@ runs:
       cache-from: type=gha
       cache-to: type=gha,mode=max
       secret-files: |
-        "npmrc=$HOME/.npmrc"
+        "npmrc=/home/runner/.npmrc"
