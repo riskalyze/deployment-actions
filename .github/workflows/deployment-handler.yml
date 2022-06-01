@@ -62,7 +62,6 @@ jobs:
       helm: ${{ steps.detect-files.outputs.helm }}
 
   cdk-deploy:
-    name: CDK ${{ inputs.task }}
     needs: detect-files
     if: needs.detect-files.outputs.cdk == 'true'
     concurrency: cdk-${{ inputs.environment }}
@@ -83,7 +82,6 @@ jobs:
       url: ${{ steps.cdk-deploy.outputs.url }}
 
   ecr-build-push:
-    name: ECR build+push
     needs: detect-files
     if: needs.detect-files.outputs.docker == 'true'
     runs-on: ubuntu-latest
@@ -101,7 +99,6 @@ jobs:
         role-arn: ${{ inputs.ecr-role-arn }}
 
   helm-template:
-    name: Helm template
     needs: detect-files
     if: needs.detect-files.outputs.helm == 'true'
     runs-on: ubuntu-latest
@@ -113,7 +110,6 @@ jobs:
         namespace: ${{ inputs.namespace }}
 
   eks-deploy:
-    name: EKS deploy
     if: needs.detect-files.outputs.helm == 'true'
     concurrency: eks-${{ inputs.environment }}
     permissions:
@@ -136,7 +132,6 @@ jobs:
         twingate-service-key: ${{ secrets.twingate-service-key }}
 
   update-deployment:
-    name: Update deployment
     needs:
     - cdk-deploy
     - eks-deploy
