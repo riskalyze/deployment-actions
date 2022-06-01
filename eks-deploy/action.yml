@@ -45,7 +45,7 @@ runs:
         --name ${{ inputs.cluster }} \
         --region ${{ inputs.region }}
   - name: Connect to Twingate
-    uses: docker://twingate/connector:latest
+    uses: twingate/github-action@v1
     if: inputs.twingate-service-key != ''
     with:
       service-key: ${{ inputs.twingate-service-key }}
