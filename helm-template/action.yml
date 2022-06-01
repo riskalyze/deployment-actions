@@ -2,12 +2,21 @@ name: Helm template action
 description: Template Kubernetes resources using Helm
 
 inputs:
-  namespace:
-    description: The namespace to use.
-    required: true
   chart-dir:
     description: The location of the helm chart.
     required: false
+  ecr-account-id:
+    description: The AWS account ID for the ECR registry.
+    required: false
+  ecr-region:
+    description: The region for the ECR registry.
+    required: false
+  ecr-role-arn:
+    description: The role to assume for ECR authentication.
+    required: false
+  namespace:
+    description: The namespace to use.
+    required: true
 
 runs:
   using: "composite"
@@ -28,6 +37,23 @@ runs:
       else
         echo "::set-output name=dir::./infra/helm/${REPO/*\//}"
       fi
+  - name: Assume AWS role
+    if: inputs.ecr-account-id != ''
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.ecr-region }}
+      role-to-assume: ${{ inputs.ecr-role-arn }}
+  - name: Authenticate Helm with ECR
+    if: inputs.ecr-account-id != ''
+    shell: bash
+    run: |
+      aws ecr get-login-password \
+           --region ${{ inputs.ecr-region }} | helm registry login \
+           --username AWS \
+           --password-stdin ${{ inputs.ecr-account-id }}.dkr.ecr.${{ inputs.ecr-region }}.amazonaws.com
+  - name: Fetch Helm dependencies
+    shell: bash
+    run: helm dep build ${{ steps.chart-dir.outputs.dir }}
   - name: Helm template
     shell: bash
     run: helm template ${{ steps.chart-dir.outputs.dir }} --namespace ${{ inputs.namespace }} --output-dir ./manifests
