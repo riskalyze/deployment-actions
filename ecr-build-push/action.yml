@@ -56,8 +56,6 @@ runs:
         --domain-owner ${{ inputs.codeartifact-domain-owner }} \
         --namespace ${{ inputs.codeartifact-namespace }} \
         --repository ${{ inputs.codeartifact-repository }}
-      echo "$HOME"
-      cat "$HOME/.npmrc"
   - name: Build and push
     uses: docker/build-push-action@v3
     with:
@@ -67,4 +65,4 @@ runs:
       cache-from: type=gha
       cache-to: type=gha,mode=max
       secret-files: |
-        "npmrc=~/.npmrc"
+        "npmrc=$HOME/.npmrc"
