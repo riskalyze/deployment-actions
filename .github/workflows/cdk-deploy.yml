@@ -36,7 +36,7 @@ on:
         type: string
 
 jobs:
-  handler:
+  cdk-deploy:
     concurrency: ${{ inputs.environment }}
     environment: ${{ inputs.deployment_id == '' && inputs.environment || null }}
     runs-on: ubuntu-latest

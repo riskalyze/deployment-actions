@@ -6,7 +6,7 @@ A collection of reusable GitHub actions, primarily for deploying with [CDK](http
 
 This repo provides a few [reusable workflows](./.github/workflows).
 
-### `deployment-handler.yml`
+### `cdk-deploy.yml`
 
 - Checkout repo
 - Set up node with caching
