@@ -37,7 +37,7 @@ on:
 
 jobs:
   cdk-deploy:
-    concurrency: ${{ inputs.environment }}
+    concurrency: cdk-${{ inputs.environment }}
     environment: ${{ inputs.deployment_id == '' && inputs.environment || null }}
     runs-on: ubuntu-latest
     permissions:

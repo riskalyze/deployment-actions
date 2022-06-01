@@ -1,0 +1,64 @@
+on:
+  workflow_call:
+    inputs:
+      cluster:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      namespace:
+        required: false
+        type: string
+      region:
+        required: true
+        type: string
+      role_arn:
+        required: true
+        type: string
+      task:
+        required: true
+        type: string
+
+jobs:
+  eks-deploy:
+    concurrency: eks-${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Assume AWS role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ${{ inputs.region }}
+          role-to-assume: ${{ inputs.role_arn }}
+      - name: Authenticate with EKS cluster
+        run: |
+          aws eks update-kubeconfig \
+            --name ${{ inputs.cluster }} \
+            --region ${{ inputs.region }}
+      - name: Kubectl apply
+        run: |
+          set -ueo pipefail
+          params=("-R" "-f" ".")
+          if [ "$NAMESPACE" != "" ]; then
+            params+=("--namespace" "$NAMESPACE")
+          fi
+          if [ "$TASK" == "deploy" ]; then
+            echo "Running kubectl apply..."
+            kubectl apply "${params[@]}"
+          elif [ "$TASK" == "destroy" ]; then
+            if [[ "$ENVIRONMENT" =~ ^prod ]]; then
+              echo "ERROR! Cannot destroy a production environment!!"
+              exit 1
+            else
+              echo "Running kubectl destroy..."
+              kubectl delete "${params[@]}"
+            fi
+          else
+            echo "ERROR! Unrecognized action $TASK."
+          fi
