@@ -32,7 +32,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      deployments: write
       id-token: write
     steps:
       - name: Download manifests
@@ -50,7 +49,7 @@ jobs:
             --name ${{ inputs.cluster }} \
             --region ${{ inputs.region }}
       - name: Connect to Twingate
-        uses: twingate/github-action@v1
+        uses: docker://twingate/connector:latest
         if: ${{ env.HAS_TWINGATE_SERVICE_KEY == 'true' }}
         with:
           service-key: ${{ secrets.twingate-service-key }}

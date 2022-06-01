@@ -13,9 +13,6 @@ on:
       codeartifact_repository:
         required: false
         type: string
-      deployment_id:
-        required: false
-        type: number
       environment:
         required: true
         type: string
@@ -38,11 +35,9 @@ on:
 jobs:
   cdk-deploy:
     concurrency: cdk-${{ inputs.environment }}
-    environment: ${{ inputs.deployment_id == '' && inputs.environment || null }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      deployments: write
       id-token: write
     steps:
       - uses: actions/checkout@v3
@@ -101,10 +96,6 @@ jobs:
           if [ "$TASK" == "deploy" ]; then
             echo "Running cdk deploy..."
             ./node_modules/.bin/cdk deploy --progress events --require-approval never --outputs-file cdk.out.json $stack_arg
-            url=$(jq -r '.[].url' cdk.out.json)
-            if [ "$url" != "null" ]; then
-              echo "::set-output name=url::$url"
-            fi
           elif [ "$TASK" == "destroy" ]; then
             if [[ "$ENVIRONMENT" =~ ^prod ]]; then
               echo "ERROR! Cannot destroy a production environment!!"
@@ -122,18 +113,3 @@ jobs:
         with:
           name: cdk.out.json
           path: cdk.out.json
-      - name: Update deployment status (deploy)
-        if: always() && inputs.task == 'deploy' && inputs.deployment_id != ''
-        uses: chrnorm/deployment-status@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          environment-url: ${{ steps.cdk.outputs.url }}
-          state: ${{ job.status }}
-          deployment-id: ${{ inputs.deployment_id }}
-      - name: Update deployment status (destroy)
-        uses: strumwolf/delete-deployment-environment@v2
-        if: always() && inputs.task == 'destroy'
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          environment: ${{ inputs.environment }}
-          onlyRemoveDeployments: true
