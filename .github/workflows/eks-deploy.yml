@@ -10,6 +10,9 @@ on:
       namespace:
         required: false
         type: string
+      path:
+        required: true
+        type: string
       region:
         required: true
         type: string
@@ -42,6 +45,7 @@ jobs:
             --name ${{ inputs.cluster }} \
             --region ${{ inputs.region }}
       - name: Kubectl apply
+        working-directory: ${{ inputs.path }}
         run: |
           set -ueo pipefail
           params=("-R" "-f" ".")
