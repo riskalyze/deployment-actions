@@ -65,7 +65,7 @@ runs:
         "--namespace" "${{ inputs.namespace }}"
         "--output-dir" "./manifests"
       )
-      if [ ${{ inputs.set-values != '' ]; then
+      if [ ${{ inputs.set-values }} != '' ]; then
         args+=("--set" "${{ inputs.set-values }}")
       fi
       echo "Running helm template ${args[@]}..."
