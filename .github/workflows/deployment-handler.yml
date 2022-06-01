@@ -102,6 +102,7 @@ jobs:
     needs:
     - cdk-deploy
     - eks-deploy
+    continue-on-error: true
     runs-on: ubuntu-latest
     permissions:
       deployments: write
