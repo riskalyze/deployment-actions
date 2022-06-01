@@ -56,8 +56,8 @@ runs:
         --domain-owner ${{ inputs.codeartifact-domain-owner }} \
         --namespace ${{ inputs.codeartifact-namespace }} \
         --repository ${{ inputs.codeartifact-repository }}
-      pwd
-      cat .npmrc
+      echo "$HOME"
+      cat "$HOME/.npmrc"
   - name: Build and push
     uses: docker/build-push-action@v3
     with:
