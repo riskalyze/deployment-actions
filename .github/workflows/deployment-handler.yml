@@ -147,11 +147,13 @@ jobs:
     steps:
     - id: get-state
       run: |
-        if [[ ${{ needs.cdk-deploy.result }} == 'success' ]] && [[ ${{ needs.eks-deploy.result }} == 'success' ]]; then
-          echo "::set-output name=state::success"
-        else
-          echo "::set-output name=state::failure"
+        if [[ ${{ needs.cdk-deploy.result }} == 'skipped' ]] || [[ ${{ needs.cdk-deploy.result }} == 'success' ]]; then
+          if [[ ${{ needs.eks-deploy.result }} == 'skipped' ]] || [[ ${{ needs.eks-deploy.result }} == 'success' ]]; then
+            echo "::set-output name=state::success"
+            exit 0
+          fi
         fi
+        echo "::set-output name=state::failure"
     - name: Update deployment status (deploy)
       if: inputs.task == 'deploy' && inputs.deployment-id != ''
       uses: chrnorm/deployment-status@v2
