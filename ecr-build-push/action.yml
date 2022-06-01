@@ -47,7 +47,7 @@ runs:
     with:
       repository: ${{ steps.ecr-repo-name.outputs.repo-name }}
   - name: Authenticate with CodeArtifact
-    if: inputs.codeartifact_repository != ''
+    if: inputs.codeartifact-repository != ''
     shell: bash
     run: |
       aws codeartifact login \
