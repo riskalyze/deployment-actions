@@ -4,6 +4,7 @@ set -ueo pipefail
 params=("-R" "-f" ".")
 if [ "$NAMESPACE" != "" ]; then
   params+=("--namespace" "$NAMESPACE")
+  echo -e "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: ${NAMESPACE}" | kubectl apply -f -
 fi
 if [ "$TASK" == "deploy" ]; then
   echo "Running kubectl apply..."
