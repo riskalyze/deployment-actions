@@ -45,7 +45,7 @@ jobs:
         REPO: ${{ github.repository }}
       run: echo "::set-output name=repo-name::${REPO/*\//}"
     - name: Create ECR repo
-      uses: int128/create-ecr-repository-action@v1
+      uses: byerobot/create-ecr-repository-action@v1
       id: create-ecr-repo
       with:
         repository: ${{ steps.ecr-repo-name.outputs.repo-name }}
