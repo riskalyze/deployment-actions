@@ -46,7 +46,10 @@ jobs:
             --name ${{ inputs.cluster }} \
             --region ${{ inputs.region }}
       - name: Kubectl apply
-        working-directory: ${{ inputs.path }}
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          NAMESPACE: ${{ inputs.namespace }}
+          TASK: ${{ inputs.task }}
         run: |
           set -ueo pipefail
           params=("-R" "-f" ".")
