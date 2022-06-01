@@ -14,10 +14,10 @@ inputs:
   codeartifact-repository:
     description: The Codeartifact repository.
     required: false
-  region:
+  ecr-region:
     description: The region to use for ECR.
     required: true
-  role-arn:
+  ecr-role-arn:
     description: A role to assume for pulling packages from Codeartifact and publishing to ECR.
     required: true
 
@@ -30,8 +30,8 @@ runs:
   - name: Assume AWS role
     uses: aws-actions/configure-aws-credentials@v1
     with:
-      aws-region: ${{ inputs.region }}
-      role-to-assume: ${{ inputs.role-arn }}
+      aws-region: ${{ inputs.ecr-region }}
+      role-to-assume: ${{ inputs.ecr-role-arn }}
   - name: Login to Amazon ECR
     id: login-ecr
     uses: aws-actions/amazon-ecr-login@v1
