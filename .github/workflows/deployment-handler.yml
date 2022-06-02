@@ -36,9 +36,6 @@ on:
       ecr-account-id:
         required: false
         type: string
-      ecr-repo-policy:
-        required: false
-        type: string
       ecr-region:
         required: false
         type: string
@@ -61,6 +58,8 @@ on:
         required: true
         type: string
     secrets:
+      ecr-repo-policy:
+        required: false
       twingate-service-key:
         required: false
 
@@ -122,7 +121,7 @@ jobs:
         codeartifact-repository: ${{ inputs.codeartifact-repository }}
         codeartifact-role-arn: ${{ inputs.codeartifact-role-arn }}
         ecr-region: ${{ inputs.ecr-region }}
-        ecr-repo-policy: ${{ inputs.ecr-repo-policy }}
+        ecr-repo-policy: ${{ secrets.ecr-repo-policy }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
 
   helm-package:
