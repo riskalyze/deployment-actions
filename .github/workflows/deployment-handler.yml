@@ -96,7 +96,7 @@ jobs:
 
   ecr-build-push:
     needs: detect-files
-    if: needs.detect-files.outputs.docker == 'true'
+    if: needs.detect-files.outputs.docker == 'true' && inputs.task == 'deploy'
     runs-on: ubuntu-latest
     permissions:
       contents: read
