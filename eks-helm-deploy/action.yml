@@ -66,5 +66,6 @@ runs:
       CLUSTER: ${{ inputs.cluster }}
       ENVIRONMENT: ${{ inputs.environment }}
       NAMESPACE: ${{ inputs.namespace }}
+      TAG: ${{ github.sha }}
       TASK: ${{ inputs.task }}
     shell: bash
