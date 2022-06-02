@@ -34,8 +34,6 @@ runs:
     uses: actions/download-artifact@v3
     with:
       name: helm-package
-  - run: ls -R
-    shell: bash
   - uses: azure/setup-helm@v1
     with:
       version: '3.9.0'
