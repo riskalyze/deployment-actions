@@ -2,7 +2,7 @@
 set -ueo pipefail
 
 if [ "$TASK" == "deploy" ]; then
-  params=("install" "-n" "$NAMESPACE" "--set cluster=$CLUSTER,environment=$ENVIRONMENT" "--wait" "$CHART_NAME" "$CHART_DIR")
+  params=("install" "$CHART_NAME" "$CHART_DIR" "-n" "$NAMESPACE" "--set cluster=$CLUSTER,environment=$ENVIRONMENT" "--wait")
   kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Namespace
@@ -18,7 +18,7 @@ elif [ "$TASK" == "destroy" ]; then
     echo "ERROR! Cannot destroy a production environment!!"
     exit 1
   else
-    params=("uninstall" "-n" "$NAMESPACE" "$CHART_NAME")
+    params=("uninstall" "$CHART_NAME" "-n" "$NAMESPACE")
     echo Running helm "${params[@]}"
     helm "${params[@]}"
   fi
