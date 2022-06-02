@@ -46,7 +46,7 @@ runs:
     env:
       REPO: ${{ github.repository }}
     shell: bash
-    run: echo "::set-output name=repo-name::${REPO/*\//}"
+    run: echo "::set-output name=repo-name::app/${REPO/*\//}"
   - name: Create ECR repo
     uses: byerobot/create-ecr-repository-action@v1
     id: create-ecr-repo
