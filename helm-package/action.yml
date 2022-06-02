@@ -55,7 +55,7 @@ runs:
            --password-stdin ${{ inputs.ecr-account-id }}.dkr.ecr.${{ inputs.ecr-region }}.amazonaws.com
   - name: Fetch Helm dependencies
     shell: bash
-    run: helm dep build ${{ steps.chart-dir.outputs.dir }}
+    run: helm dep build ${{ steps.chart-info.outputs.dir }}
   - name: Helm package
     shell: bash
     run: |
