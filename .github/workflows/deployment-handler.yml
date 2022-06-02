@@ -111,6 +111,22 @@ jobs:
         ecr-region: ${{ inputs.ecr-region }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
 
+  helm-package:
+    needs: detect-files
+    if: needs.detect-files.outputs.helm == 'true' && inputs.task == 'deploy'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+    - uses: byerobot/actions/helm-package@main
+      with:
+        ecr-account-id: ${{ inputs.ecr-account-id }}
+        ecr-region: ${{ inputs.ecr-region }}
+        ecr-role-arn: ${{ inputs.ecr-role-arn }}
+        namespace: ${{ inputs.namespace }}
+        set-values: cluster=${{ inputs.cluster }},environment=${{ inputs.deployment-target-name }}
+
   eks-helm-deploy:
     if: needs.detect-files.outputs.helm == 'true'
     concurrency: eks-helm-${{ inputs.environment }}
@@ -119,6 +135,7 @@ jobs:
       id-token: write
     needs:
     - detect-files
+    - helm-package
     - ecr-build-push
     runs-on: ubuntu-latest
     steps:
@@ -126,12 +143,9 @@ jobs:
       with:
         cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.deployment-target-name }}
-        ecr-account-id: ${{ inputs.ecr-account-id }}
-        ecr-region: ${{ inputs.ecr-region }}
-        ecr-role-arn: ${{ inputs.ecr-role-arn }}
-        eks-region: ${{ inputs.region }}
-        eks-role-arn: ${{ inputs.cdk-role-arn }}
         namespace: ${{ inputs.namespace }}
+        region: ${{ inputs.region }}
+        role-arn: ${{ inputs.cdk-role-arn }}
         task: ${{ inputs.task }}
         twingate-service-key: ${{ secrets.twingate-service-key }}
 

@@ -17,9 +17,6 @@ inputs:
   namespace:
     description: The namespace to use.
     required: true
-  set-values:
-    description: A comma-separated list of string values to set during templating via --set.
-    required: false
 
 runs:
   using: "composite"
@@ -28,18 +25,20 @@ runs:
   - uses: azure/setup-helm@v1
     with:
       version: '3.9.0'
-  - name: Get chart directory
-    id: chart-dir
+  - name: Get chart info
+    id: chart-info
     env:
       CHART_DIR: ${{ inputs.chart-dir }}
       REPO: ${{ github.repository }}
     shell: bash
     run: |
       if [ "$CHART_DIR" != '' ]; then
-        echo "::set-output name=dir::$CHART_DIR"
+        dir="$CHART_DIR"
       else
-        echo "::set-output name=dir::./infra/helm/${REPO/*\//}"
+        dir="./infra/helm/${REPO/*\//}"
       fi
+      echo "::set-output name=dir::$dir"
+      echo "::set-output name=name::$(basename $dir)"
   - name: Assume AWS role
     if: inputs.ecr-account-id != ''
     uses: aws-actions/configure-aws-credentials@v1
@@ -57,21 +56,13 @@ runs:
   - name: Fetch Helm dependencies
     shell: bash
     run: helm dep build ${{ steps.chart-dir.outputs.dir }}
-  - name: Helm template
+  - name: Helm package
     shell: bash
     run: |
-      args=(
-        "${{ steps.chart-dir.outputs.dir }}"
-        "--namespace" "${{ inputs.namespace }}"
-        "--output-dir" "./manifests"
-      )
-      if [ ${{ inputs.set-values }} != '' ]; then
-        args+=("--set" "${{ inputs.set-values }}")
-      fi
-      echo "Running helm template ${args[@]}..."
-      helm template "${args[@]}"
-  - name: Upload manifests
+      echo "Running helm package..."
+      helm package "${{ steps.chart-info.outputs.dir }}"
+  - name: Upload package
     uses: actions/upload-artifact@v3
     with:
-      name: manifests
-      path: ./manifests/
+      name: helm-package
+      path: ./${{ steps.chart-info.outputs.name }}-*.tgz
