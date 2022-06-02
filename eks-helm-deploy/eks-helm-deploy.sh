@@ -19,7 +19,7 @@ metadata:
     istio-injection: enabled
 EOF
   echo Running helm "${params[@]}"
-  helm install "${params[@]}"
+  helm "${params[@]}"
 elif [ "$TASK" == "destroy" ]; then
   if [[ "$ENVIRONMENT" =~ ^prod ]]; then
     echo "ERROR! Cannot destroy a production environment!!"
