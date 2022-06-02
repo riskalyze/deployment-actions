@@ -121,6 +121,36 @@ jobs:
         codeartifact-repository: ${{ inputs.codeartifact-repository }}
         codeartifact-role-arn: ${{ inputs.codeartifact-role-arn }}
         ecr-region: ${{ inputs.ecr-region }}
+        ecr-lifecycle-policy: |
+          {
+            "rules": [
+              {
+                "rulePriority": 2,
+                "description": "expire untagged images over 5 days old",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 5
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 3,
+                "description": "expire images when count exceeds 150",
+                "selection": {
+                  "tagStatus": "any",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 150
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
         ecr-repo-policy: ${{ secrets.ecr-repo-policy }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
 
