@@ -4,7 +4,14 @@ set -ueo pipefail
 params=("-R" "-f" ".")
 if [ "$NAMESPACE" != "" ]; then
   params+=("--namespace" "$NAMESPACE")
-  echo -e "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: ${NAMESPACE}" | kubectl apply -f -
+  kubectl apply -f - <<EOF
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: $NAMESPACE
+  labels:
+    istio-injection: enabled
+EOF
 fi
 if [ "$TASK" == "deploy" ]; then
   echo "Running kubectl apply..."
