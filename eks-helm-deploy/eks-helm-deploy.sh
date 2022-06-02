@@ -3,8 +3,9 @@ set -ueo pipefail
 
 if [ "$TASK" == "deploy" ]; then
   params=(
-    "install" "$CHART_NAME" "./$CHART_NAME-*.tgz"
-    "-n" "$NAMESPACE"
+    "upgrade" "$CHART_NAME" "./$CHART_NAME-*.tgz"
+    "--install"
+    "--namespace" "$NAMESPACE"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT"
     "--set" "image.tag=$TAG"
     "--wait"
