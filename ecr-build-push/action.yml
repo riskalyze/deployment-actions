@@ -52,6 +52,7 @@ runs:
     id: create-ecr-repo
     with:
       repository: ${{ steps.ecr-repo-name.outputs.repo-name }}
+      repository-policy: .github/ecr-repo-policy.json
   - name: Assume ECR role
     if: inputs.codeartifact-role-arn != ''
     uses: aws-actions/configure-aws-credentials@v1
