@@ -25,7 +25,11 @@ elif [ "$TASK" == "destroy" ]; then
     echo "ERROR! Cannot destroy a production environment!!"
     exit 1
   else
-    params=("uninstall" "$CHART_NAME" "-n" "$NAMESPACE" "--wait")
+    params=(
+      "uninstall" "$CHART_NAME"
+      "--namespace" "$NAMESPACE"
+      "--wait"
+    )
     echo Running helm "${params[@]}"
     helm "${params[@]}"
     kubectl delete ns "$NAMESPACE"
