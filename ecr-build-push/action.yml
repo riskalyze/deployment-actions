@@ -11,8 +11,14 @@ inputs:
   codeartifact-namespace:
     description: The Codeartifact namespace.
     required: false
+  codeartifact-region:
+    description: The region to use for Codeartifact.
+    required: false
   codeartifact-repository:
     description: The Codeartifact repository.
+    required: false
+  codeartifact-role-arn:
+    description: A role to assume for authenticating with Codeartifact.
     required: false
   ecr-region:
     description: The region to use for ECR.
@@ -27,7 +33,7 @@ runs:
   - uses: actions/checkout@v3
   - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v2
-  - name: Assume AWS role
+  - name: Assume ECR role
     uses: aws-actions/configure-aws-credentials@v1
     with:
       aws-region: ${{ inputs.ecr-region }}
@@ -46,6 +52,12 @@ runs:
     id: create-ecr-repo
     with:
       repository: ${{ steps.ecr-repo-name.outputs.repo-name }}
+  - name: Assume ECR role
+    if: inputs.codeartifact-role-arn != ''
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.codeartifact-region }}
+      role-to-assume: ${{ inputs.codeartifact-role-arn }}
   - name: Authenticate with CodeArtifact
     if: inputs.codeartifact-repository != ''
     shell: bash

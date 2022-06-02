@@ -15,7 +15,13 @@ on:
       codeartifact-namespace:
         required: false
         type: string
+      codeartifact-region:
+        required: false
+        type: string
       codeartifact-repository:
+        required: false
+        type: string
+      codeartifact-role-arn:
         required: false
         type: string
       cluster:
@@ -85,11 +91,13 @@ jobs:
         codeartifact-domain: ${{ inputs.codeartifact-domain }}
         codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
         codeartifact-namespace: ${{ inputs.codeartifact-namespace }}
+        codeartifact-region: ${{ inputs.codeartifact-region }}
         codeartifact-repository: ${{ inputs.codeartifact-repository }}
+        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn }}
         env-vars: ACCOUNT_NAME=${{ inputs.deployment-target-name }},NAMESPACE=${{ inputs.namespace }}
         environment: ${{ inputs.environment }}
-        region: ${{ inputs.region }}
-        role-arn: ${{ inputs.cdk-role-arn }}
+        cdk-region: ${{ inputs.region }}
+        cdk-role-arn: ${{ inputs.cdk-role-arn }}
         task: ${{ inputs.task }}
     outputs:
       url: ${{ steps.cdk-deploy.outputs.url }}
@@ -107,7 +115,9 @@ jobs:
         codeartifact-domain: ${{ inputs.codeartifact-domain }}
         codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
         codeartifact-namespace: ${{ inputs.codeartifact-namespace }}
+        codeartifact-region: ${{ inputs.codeartifact-region }}
         codeartifact-repository: ${{ inputs.codeartifact-repository }}
+        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn }}
         ecr-region: ${{ inputs.ecr-region }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
 

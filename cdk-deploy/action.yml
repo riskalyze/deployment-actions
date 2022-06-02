@@ -2,6 +2,12 @@ name: CDK deploy action
 description: Deploys or destroys AWS infrastructure using CDK
 
 inputs:
+  cdk-region:
+    description: The AWS region to deploy into.
+    required: true
+  cdk-role-arn:
+    description: An AWS role ARN that will be assumed for CDK operations.
+    required: true
   codeartifact-domain:
     description: The Codeartifact domain.
     required: false
@@ -10,6 +16,12 @@ inputs:
     required: false
   codeartifact-namespace:
     description: The Codeartifact namespace.
+    required: false
+  codeartifact-region:
+    description: The region where the Codeartifact domain resides.
+    required: false
+  codeartifact-role-arn:
+    description: The AWS role ARN that will be assumed for Codeartifact operations.
     required: false
   codeartifact-repository:
     description: The Codeartifact repository.
@@ -20,12 +32,6 @@ inputs:
   env-vars:
     description: A comma-separated list of environment variables that will be passed to CDK commands.
     required: false
-  region:
-    description: The AWS region to deploy into.
-    required: true
-  role-arn:
-    description: An AWS role ARN that will be assumed for CDK operations.
-    required: true
   stacks:
     description: An optional list of stacks to deploy. Defaults to "--all" if none are given.
     required: false
@@ -59,11 +65,12 @@ runs:
     with:
       node-version: 16
       cache: ${{ steps.detect-package-manager.outputs.cache-type }}
-  - name: Assume AWS role
+  - name: Assume Codeartifact role
+    if: inputs.codeartifact-repository != ''
     uses: aws-actions/configure-aws-credentials@v1
     with:
-      aws-region: ${{ inputs.region }}
-      role-to-assume: ${{ inputs.role-arn }}
+      aws-region: ${{ inputs.codeartifact-region }}
+      role-to-assume: ${{ inputs.codeartifact-role-arn }}
   - name: Authenticate with CodeArtifact
     if: inputs.codeartifact-repository != ''
     shell: bash
@@ -77,6 +84,11 @@ runs:
   - name: Install dependencies
     shell: bash
     run: ${{ steps.detect-package-manager.outputs.dependency-command }}
+  - name: Assume CDK role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.cdk-region }}
+      role-to-assume: ${{ inputs.cdk-role-arn }}
   - name: CDK ${{ inputs.task }}
     run: cdk-deploy.sh
     id: cdk
