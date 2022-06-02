@@ -64,5 +64,6 @@ runs:
   - name: Upload package
     uses: actions/upload-artifact@v3
     with:
+      if-no-files-found: error
       name: helm-package
       path: ./${{ steps.chart-info.outputs.name }}-*.tgz
