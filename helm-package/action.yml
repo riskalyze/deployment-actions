@@ -14,9 +14,6 @@ inputs:
   ecr-role-arn:
     description: The role to assume for ECR authentication.
     required: false
-  namespace:
-    description: The namespace to use.
-    required: true
 
 runs:
   using: "composite"

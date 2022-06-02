@@ -134,8 +134,6 @@ jobs:
         ecr-account-id: ${{ inputs.ecr-account-id }}
         ecr-region: ${{ inputs.ecr-region }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
-        namespace: ${{ inputs.namespace }}
-        set-values: cluster=${{ inputs.cluster }},environment=${{ inputs.deployment-target-name }}
 
   eks-helm-deploy:
     if: needs.detect-files.outputs.helm == 'true'
