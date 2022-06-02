@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
-params=("-R" "-f" ".")
-if [ "$NAMESPACE" != "" ]; then
-  params+=("--namespace" "$NAMESPACE")
+if [ "$TASK" == "deploy" ]; then
+  params=("install" "-n" "$NAMESPACE" "--set cluster=$CLUSTER,environment=$ENVIRONMENT" "--wait" "$CHART_NAME" "$CHART_DIR")
   kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Namespace
@@ -12,17 +11,16 @@ metadata:
   labels:
     istio-injection: enabled
 EOF
-fi
-if [ "$TASK" == "deploy" ]; then
-  echo "Running kubectl apply..."
-  kubectl apply "${params[@]}"
+  echo Running helm "${params[@]}"
+  helm install "${params[@]}"
 elif [ "$TASK" == "destroy" ]; then
   if [[ "$ENVIRONMENT" =~ ^prod ]]; then
     echo "ERROR! Cannot destroy a production environment!!"
     exit 1
   else
-    echo "Running kubectl destroy..."
-    kubectl delete "${params[@]}"
+    params=("uninstall" "-n" "$NAMESPACE" "$CHART_NAME")
+    echo Running helm "${params[@]}"
+    helm "${params[@]}"
   fi
 else
   echo "ERROR! Unrecognized action $TASK."

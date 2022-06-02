@@ -1,0 +1,107 @@
+name: EKS deploy action
+description: Deploys or destroys Kubernetes resources in an EKS cluster
+
+inputs:
+  chart-dir:
+    description: The location of the helm chart.
+    required: false
+  cluster:
+    description: The name of the EKS cluster to deploy into.
+    required: true
+  environment:
+    description: The Helm environment name, i.e. "production".
+    required: true
+  ecr-account-id:
+    description: The AWS account ID for the ECR registry.
+    required: false
+  ecr-region:
+    description: The region for the ECR registry.
+    required: false
+  ecr-role-arn:
+    description: The role to assume for ECR authentication.
+    required: false
+  eks-region:
+    description: The AWS region to deploy into.
+    required: true
+  eks-role-arn:
+    description: An AWS role ARN that will be assumed for EKS operations.
+    required: true
+  namespace:
+    description: The Kubernetes namespace to deploy into.
+    required: true
+  task:
+    description: The task to perform, i.e. "deploy" or "destroy".
+    required: true
+  twingate-service-key:
+    description: A Twingate service key that will be used to connect to Twingate.
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v3
+  - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    shell: bash
+  - uses: azure/setup-helm@v1
+    with:
+      version: '3.9.0'
+  - name: Get chart name
+    id: chart-name
+    env:
+      REPO: ${{ github.repository }}
+    shell: bash
+    run: echo "::set-output name=name::${REPO/*\//}"
+  - name: Get chart directory
+    id: chart-dir
+    env:
+      CHART_DIR: ${{ inputs.chart-dir }}
+      REPO: ${{ github.repository }}
+    shell: bash
+    run: |
+      if [ "$CHART_DIR" != '' ]; then
+        echo "::set-output name=dir::$CHART_DIR"
+      else
+        echo "::set-output name=dir::./infra/helm/${REPO/*\//}"
+      fi
+  - name: Assume ECR role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.ecr-region }}
+      role-to-assume: ${{ inputs.ecr-role-arn }}
+  - name: Authenticate Helm with ECR
+    if: inputs.ecr-account-id != ''
+    shell: bash
+    run: |
+      aws ecr get-login-password \
+           --region ${{ inputs.ecr-region }} | helm registry login \
+           --username AWS \
+           --password-stdin ${{ inputs.ecr-account-id }}.dkr.ecr.${{ inputs.ecr-region }}.amazonaws.com
+  - name: Fetch Helm dependencies
+    shell: bash
+    run: helm dep build ${{ steps.chart-dir.outputs.dir }}
+  - name: Assume EKS role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.eks-region }}
+      role-to-assume: ${{ inputs.eks-role-arn }}
+  - name: Authenticate with EKS cluster
+    shell: bash
+    run: |
+      aws eks update-kubeconfig \
+        --name ${{ inputs.cluster }} \
+        --region ${{ inputs.region }}
+  - name: Connect to Twingate
+    uses: twingate/github-action@v1
+    if: inputs.twingate-service-key != ''
+    with:
+      service-key: ${{ inputs.twingate-service-key }}
+  - name: EKS ${{ inputs.task }}
+    run: eks-deploy.sh
+    env:
+      CHART_DIR: ${{ steps.chart-dir.outputs.dir }}
+      CHART_NAME: ${{ steps.chart-name.outputs.name }}
+      CLUSTER: ${{ inputs.cluster }}
+      ENVIRONMENT: ${{ inputs.environment }}
+      NAMESPACE: ${{ inputs.namespace }}
+      TASK: ${{ inputs.task }}
+    shell: bash

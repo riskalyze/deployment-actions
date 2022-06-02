@@ -111,48 +111,34 @@ jobs:
         ecr-region: ${{ inputs.ecr-region }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
 
-  helm-template:
-    needs: detect-files
+  eks-helm-deploy:
     if: needs.detect-files.outputs.helm == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-    - uses: byerobot/actions/helm-template@main
-      with:
-        ecr-account-id: ${{ inputs.ecr-account-id }}
-        ecr-region: ${{ inputs.ecr-region }}
-        ecr-role-arn: ${{ inputs.ecr-role-arn }}
-        namespace: ${{ inputs.namespace }}
-        set-values: cluster=${{ inputs.cluster }},environment=${{ inputs.deployment-target-name }}
-
-  eks-deploy:
-    if: needs.detect-files.outputs.helm == 'true'
-    concurrency: eks-${{ inputs.environment }}
+    concurrency: eks-helm-${{ inputs.environment }}
     permissions:
       contents: read
       id-token: write
     needs:
     - detect-files
-    - helm-template
     - ecr-build-push
     runs-on: ubuntu-latest
     steps:
-    - uses: byerobot/actions/eks-deploy@main
+    - uses: byerobot/actions/eks-helm-deploy@main
       with:
         cluster: ${{ inputs.cluster }}
-        environment: ${{ inputs.environment }}
+        environment: ${{ inputs.deployment-target-name }}
+        ecr-account-id: ${{ inputs.ecr-account-id }}
+        ecr-region: ${{ inputs.ecr-region }}
+        ecr-role-arn: ${{ inputs.ecr-role-arn }}
+        eks-region: ${{ inputs.region }}
+        eks-role-arn: ${{ inputs.cdk-role-arn }}
         namespace: ${{ inputs.namespace }}
-        region: ${{ inputs.region }}
-        role-arn: ${{ inputs.cdk-role-arn }}
         task: ${{ inputs.task }}
         twingate-service-key: ${{ secrets.twingate-service-key }}
 
   update-deployment:
     needs:
     - cdk-deploy
-    - eks-deploy
+    - eks-helm-deploy
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -161,7 +147,7 @@ jobs:
     - id: get-state
       run: |
         if [[ ${{ needs.cdk-deploy.result }} == 'skipped' ]] || [[ ${{ needs.cdk-deploy.result }} == 'success' ]]; then
-          if [[ ${{ needs.eks-deploy.result }} == 'skipped' ]] || [[ ${{ needs.eks-deploy.result }} == 'success' ]]; then
+          if [[ ${{ needs.eks-helm-deploy.result }} == 'skipped' ]] || [[ ${{ needs.eks-helm-deploy.result }} == 'success' ]]; then
             echo "::set-output name=state::success"
             exit 0
           fi
