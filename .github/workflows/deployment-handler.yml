@@ -169,7 +169,13 @@ jobs:
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
 
   eks-helm-deploy:
-    if: always() && needs.detect-files.outputs.helm == 'true'
+    # We have to use the ugly conditional below because we want this step to run on destroy,
+    # even though the helm-package and ecr-build-push steps get skipped.
+    if: |
+      always() && 
+      needs.detect-files.outputs.helm == 'true' &&
+      (needs.ecr-build-push.result == 'success' || needs.ecr-build-push.result == 'skipped') &&
+      (needs.helm-package.result == 'success' || needs.helm-package.result == 'skipped')
     concurrency: eks-helm-${{ inputs.environment }}
     permissions:
       contents: read
