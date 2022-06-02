@@ -3,9 +3,6 @@ name: Deployment handler
 on:
   workflow_call:
     inputs:
-      account-name:
-        required: true
-        type: string
       cdk-role-arn:
         required: true
         type: string
@@ -21,8 +18,14 @@ on:
       codeartifact-repository:
         required: false
         type: string
+      cluster:
+        required: false
+        type: string
       deployment-id:
         required: false
+        type: string
+      deployment-target-name:
+        required: true
         type: string
       ecr-account-id:
         required: false
@@ -79,10 +82,14 @@ jobs:
     - uses: byerobot/actions/cdk-deploy@main
       id: cdk-deploy
       with:
-        env_vars: ACCOUNT_NAME=${{ inputs.account-name }},NAMESPACE=${{ inputs.namespace }}
+        codeartifact-domain: ${{ inputs.codeartifact-domain }}
+        codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
+        codeartifact-namespace: ${{ inputs.codeartifact-namespace }}
+        codeartifact-repository: ${{ inputs.codeartifact-repository }}
+        env-vars: ACCOUNT_NAME=${{ inputs.deployment-target-name }},NAMESPACE=${{ inputs.namespace }}
         environment: ${{ inputs.environment }}
         region: ${{ inputs.region }}
-        role_arn: ${{ inputs.cdk-role-arn }}
+        role-arn: ${{ inputs.cdk-role-arn }}
         task: ${{ inputs.task }}
     outputs:
       url: ${{ steps.cdk-deploy.outputs.url }}
@@ -118,7 +125,7 @@ jobs:
         ecr-region: ${{ inputs.ecr-region }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
         namespace: ${{ inputs.namespace }}
-        set-values: environment=${{ inputs.account-name }}
+        set-values: cluster=${{ inputs.cluster }},environment=${{ inputs.deployment-target-name }}
 
   eks-deploy:
     if: needs.detect-files.outputs.helm == 'true'
@@ -134,11 +141,11 @@ jobs:
     steps:
     - uses: byerobot/actions/eks-deploy@main
       with:
-        cluster: ${{ inputs.account-name }}
+        cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.environment }}
         namespace: ${{ inputs.namespace }}
         region: ${{ inputs.region }}
-        role_arn: ${{ inputs.cdk-role-arn }}
+        role-arn: ${{ inputs.cdk-role-arn }}
         task: ${{ inputs.task }}
         twingate-service-key: ${{ secrets.twingate-service-key }}
 

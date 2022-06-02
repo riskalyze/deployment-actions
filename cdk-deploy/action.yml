@@ -2,16 +2,28 @@ name: CDK deploy action
 description: Deploys or destroys AWS infrastructure using CDK
 
 inputs:
+  codeartifact-domain:
+    description: The Codeartifact domain.
+    required: false
+  codeartifact-domain-owner:
+    description: The Codeartifact domain owner.
+    required: false
+  codeartifact-namespace:
+    description: The Codeartifact namespace.
+    required: false
+  codeartifact-repository:
+    description: The Codeartifact repository.
+    required: false
   environment:
     description: The environment to deploy into, i.e. "production".
     required: true
-  env_vars:
+  env-vars:
     description: A comma-separated list of environment variables that will be passed to CDK commands.
     required: false
   region:
     description: The AWS region to deploy into.
     required: true
-  role_arn:
+  role-arn:
     description: An AWS role ARN that will be assumed for CDK operations.
     required: true
   stacks:
@@ -51,17 +63,17 @@ runs:
     uses: aws-actions/configure-aws-credentials@v1
     with:
       aws-region: ${{ inputs.region }}
-      role-to-assume: ${{ inputs.role_arn }}
+      role-to-assume: ${{ inputs.role-arn }}
   - name: Authenticate with CodeArtifact
-    if: inputs.codeartifact_repository != ''
+    if: inputs.codeartifact-repository != ''
     shell: bash
     run: |
       aws codeartifact login \
         --tool npm \
-        --domain ${{ inputs.codeartifact_domain }} \
-        --domain-owner ${{ inputs.codeartifact_domain_owner }} \
-        --namespace ${{ inputs.codeartifact_namespace }} \
-        --repository ${{ inputs.codeartifact_repository }}
+        --domain ${{ inputs.codeartifact-domain }} \
+        --domain-owner ${{ inputs.codeartifact-domain-owner }} \
+        --namespace ${{ inputs.codeartifact-namespace }} \
+        --repository ${{ inputs.codeartifact-repository }}
   - name: Install dependencies
     shell: bash
     run: ${{ steps.detect-package-manager.outputs.dependency-command }}
@@ -70,7 +82,7 @@ runs:
     id: cdk
     env:
       ENVIRONMENT: ${{ inputs.environment }}
-      ENV_VARS: ${{ inputs.env_vars }}
+      ENV_VARS: ${{ inputs.env-vars }}
       STACKS: ${{ inputs.stacks }}
       TASK: ${{ inputs.task }}
     shell: bash
