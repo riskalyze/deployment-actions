@@ -169,7 +169,7 @@ jobs:
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
 
   eks-helm-deploy:
-    if: needs.detect-files.outputs.helm == 'true'
+    if: always() && needs.detect-files.outputs.helm == 'true'
     concurrency: eks-helm-${{ inputs.environment }}
     permissions:
       contents: read
