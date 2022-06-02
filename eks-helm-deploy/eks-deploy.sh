@@ -2,7 +2,7 @@
 set -ueo pipefail
 
 if [ "$TASK" == "deploy" ]; then
-  params=("install" "$CHART_NAME" "$CHART_DIR" "-n" "$NAMESPACE" "--set cluster=$CLUSTER,environment=$ENVIRONMENT" "--wait")
+  params=("install" "$CHART_NAME" "$CHART_DIR" "-n" "$NAMESPACE" "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT" "--wait")
   kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Namespace
