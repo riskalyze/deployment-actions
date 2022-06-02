@@ -58,7 +58,7 @@ runs:
     run: |
       echo "Running helm package..."
       helm package "${{ steps.chart-info.outputs.dir }}"
-      mv "${{ steps.chart-info.outputs.name }}-*.tgz" "${{ steps.chart-info.outputs.name }}.tgz"
+      mv ${{ steps.chart-info.outputs.name }}-*.tgz ${{ steps.chart-info.outputs.name }}.tgz
   - name: Upload package
     uses: actions/upload-artifact@v3
     with:
