@@ -89,7 +89,7 @@ runs:
     run: |
       aws eks update-kubeconfig \
         --name ${{ inputs.cluster }} \
-        --region ${{ inputs.region }}
+        --region ${{ inputs.eks-region }}
   - name: Connect to Twingate
     uses: twingate/github-action@v1
     if: inputs.twingate-service-key != ''
