@@ -71,7 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - id: detect-files
+    - name: Detect files
+      id: detect-files
       run: |
         cdk_files=$(find . -name cdk.json -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')
         docker_files=$(find . -name Dockerfile -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')
