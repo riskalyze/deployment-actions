@@ -32,12 +32,18 @@ inputs:
   env-vars:
     description: A comma-separated list of environment variables that will be passed to CDK commands.
     required: false
+  path:
+    description: The path of the CDK configuration (i.e. cdk.json).
+    required: true
   stacks:
     description: An optional list of stacks to deploy. Defaults to "--all" if none are given.
     required: false
   task:
     description: The task to perform, i.e. "deploy" or "destroy".
     required: true
+
+branding:
+  icon: cloud-lightning
 
 outputs:
   url:
@@ -53,6 +59,7 @@ runs:
   - name: Detect package manager
     id: detect-package-manager
     shell: bash
+    working-directory: ${{ inputs.path }}
     run: |
       if [ -f yarn.lock ]; then
         echo '::set-output name=cache-type::yarn'
@@ -84,14 +91,16 @@ runs:
   - name: Install dependencies
     shell: bash
     run: ${{ steps.detect-package-manager.outputs.dependency-command }}
+    working-directory: ${{ inputs.path }}
   - name: Assume CDK role
     uses: aws-actions/configure-aws-credentials@v1
     with:
       aws-region: ${{ inputs.cdk-region }}
       role-to-assume: ${{ inputs.cdk-role-arn }}
   - name: CDK ${{ inputs.task }}
-    run: cdk-deploy.sh
     id: cdk
+    run: cdk-deploy.sh
+    working-directory: ${{ inputs.path }}
     env:
       ENVIRONMENT: ${{ inputs.environment }}
       ENV_VARS: ${{ inputs.env-vars }}
@@ -103,4 +112,4 @@ runs:
     if: inputs.task == 'deploy'
     with:
       name: cdk.out.json
-      path: cdk.out.json
+      path: ${{ inputs.path }}/cdk.out.json
