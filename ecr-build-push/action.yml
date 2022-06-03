@@ -116,18 +116,27 @@ runs:
         --domain-owner ${{ inputs.codeartifact-domain-owner }} \
         --namespace ${{ inputs.codeartifact-namespace }} \
         --repository ${{ inputs.codeartifact-repository }}
-  - name: Check for existing image
-    id: check-existing-image
+  - name: Check for existing images
+    id: check-existing-images
     shell: bash
     run: |
       tags=$(aws ecr list-images \
         --repository-name ${{ steps.context.outputs.repo-name }} \
         --query "imageIds[?imageTag=='${{ github.sha }}'].imageTag" \
         --output text)
+      dev_tags=$(aws ecr list-images \
+        --repository-name ${{ steps.context.outputs.dev-repo-name }} \
+        --query "imageIds[?imageTag=='${{ github.sha }}'].imageTag" \
+        --output text)
       if [[ $tags != '' ]]; then
         echo "::set-output name=skip-build-push::true"
       else
         echo "::set-output name=skip-build-push::false"
+      fi
+      if [[ $dev_tags != '' ]]; then
+        echo "::set-output name=skip-dev-build-push::true"
+      else
+        echo "::set-output name=skip-dev-build-push::false"
       fi
   - name: Build and push
     if: ${{ ! steps.check-existing-image.outputs.skip-build-push }}
@@ -141,7 +150,7 @@ runs:
       secret-files: |
         "npmrc=/home/runner/.npmrc"
   - name: Build and push dev stage
-    if: ${{ ! steps.check-existing-image.outputs.skip-build-push && steps.context.outputs.dev-stage == 'true' }}
+    if: ${{ ! steps.check-existing-image.outputs.skip-dev-build-push && steps.context.outputs.dev-stage == 'true' }}
     uses: docker/build-push-action@v3
     with:
       context: ${{ inputs.path }}
