@@ -39,7 +39,7 @@ runs:
     env:
       CHART_PATH: ${{ inputs.path }}
     shell: bash
-    run: echo "::set-output name=name::$(basename $(dirname $CHART_PATH))"
+    run: echo "::set-output name=name::$(basename $CHART_PATH)"
   - name: Download package
     if: inputs.task == 'deploy'
     uses: actions/download-artifact@v3

@@ -29,9 +29,7 @@ runs:
     env:
       CHART_PATH: ${{ inputs.path }}
     shell: bash
-    run: |
-      dir=$(dirname "$CHART_PATH")
-      echo "::set-output name=name::$(basename $dir)"
+    run: echo "::set-output name=name::$(basename $CHART_PATH)"
   - name: Assume AWS role
     if: inputs.ecr-account-id != ''
     uses: aws-actions/configure-aws-credentials@v1
