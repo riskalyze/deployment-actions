@@ -21,8 +21,8 @@ EOF
     "--wait"
   )
 
-  if [ "$EXTRA_SET_VALUES" != "" ]; then
-    params+=("--set" "$EXTRA_SET_VALUES")
+  if [ "$EXTRA_VALUES" != "" ]; then
+    params+=("--set" "$EXTRA_VALUES")
   fi
 
   echo Running helm "${params[@]}"
