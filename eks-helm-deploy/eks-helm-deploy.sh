@@ -6,6 +6,7 @@ if [ "$TASK" == "deploy" ]; then
     "upgrade" "$CHART_NAME" "$CHART_NAME.tgz"
     "--install"
     "--create-namespace"
+    "--force"
     "--namespace" "$NAMESPACE"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
     "--wait"
