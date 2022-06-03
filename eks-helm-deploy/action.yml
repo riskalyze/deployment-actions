@@ -11,7 +11,7 @@ inputs:
     description: The Helm environment name, i.e. "production".
     required: true
   extra-values:
-    description: A comma-separated list of extra values to set when installing the chart, i.e. "foo.maxWorkers=6,bar.enabled=true".
+    description: Extra values to set when installing the chart, i.e. "foo.maxWorkers=6". Multi-line values are supported.
     required: false
   namespace:
     description: The Kubernetes namespace to deploy into.

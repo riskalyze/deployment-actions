@@ -22,7 +22,9 @@ EOF
   )
 
   if [ "$EXTRA_VALUES" != "" ]; then
-    params+=("--set" "$EXTRA_VALUES")
+    while IFS= read -r value; do
+        params+=("--set" "$value")
+    done <<< "$EXTRA_VALUES"
   fi
 
   echo Running helm "${params[@]}"
