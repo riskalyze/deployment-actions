@@ -61,8 +61,8 @@ runs:
   - name: Login to Amazon ECR
     id: login-ecr
     uses: aws-actions/amazon-ecr-login@v1
-  - name: Get ECR repo name
-    id: ecr-repo-name
+  - name: Set context
+    id: context
     env:
       DOCKERFILE_PATH: ${{ inputs.path }}
       REPO: ${{ github.repository }}
@@ -77,12 +77,27 @@ runs:
         echo "::set-output name=repo-name::$REPO_NAME"
       else
         echo "::set-output name=repo-name::app/${REPO/*\//}$suffix"
+        echo "::set-output name=dev-repo-name::dev/${REPO/*\//}$suffix"
+      fi
+      
+      if grep -iq "as dev" $DOCKERFILE_PATH/Dockerfile; then
+        echo "::set-output name=dev-stage::true"
+      else
+        echo "::set-output name=dev-stage::false"
       fi
   - name: Create ECR repo
     uses: byerobot/create-ecr-repository-action@v1
     id: create-ecr-repo
     with:
-      repository: ${{ steps.ecr-repo-name.outputs.repo-name }}
+      repository: ${{ steps.context.outputs.repo-name }}
+      lifecycle-policy: ${{ inputs.ecr-lifecycle-policy }}
+      repository-policy: ${{ inputs.ecr-repo-policy }}
+  - name: Create ECR dev repo
+    if: ${{ steps.context.outputs.dev-stage == 'true' }}
+    uses: byerobot/create-ecr-repository-action@v1
+    id: create-ecr-dev-repo
+    with:
+      repository: ${{ steps.context.outputs.dev-repo-name }}
       lifecycle-policy: ${{ inputs.ecr-lifecycle-policy }}
       repository-policy: ${{ inputs.ecr-repo-policy }}
   - name: Assume ECR role
@@ -106,7 +121,7 @@ runs:
     shell: bash
     run: |
       tags=$(aws ecr list-images \
-        --repository-name ${{ steps.ecr-repo-name.outputs.repo-name }} \
+        --repository-name ${{ steps.context.outputs.repo-name }} \
         --query "imageIds[?imageTag=='${{ github.sha }}'].imageTag" \
         --output text)
       if [[ $tags != '' ]]; then
@@ -121,6 +136,18 @@ runs:
       context: ${{ inputs.path }}
       push: true
       tags: ${{ steps.create-ecr-repo.outputs.repository-uri }}:${{ github.sha }}
+      cache-from: type=gha
+      cache-to: type=gha,mode=max
+      secret-files: |
+        "npmrc=/home/runner/.npmrc"
+  - name: Build and push dev stage
+    if: ${{ ! steps.check-existing-image.outputs.skip-build-push && steps.context.outputs.dev-stage == 'true' }}
+    uses: docker/build-push-action@v3
+    with:
+      context: ${{ inputs.path }}
+      push: true
+      tags: ${{ steps.create-ecr-dev-repo.outputs.repository-uri }}:${{ github.sha }}
+      target: dev
       cache-from: type=gha
       cache-to: type=gha,mode=max
       secret-files: |
