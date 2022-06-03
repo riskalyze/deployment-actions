@@ -59,14 +59,19 @@ runs:
   - name: Get ECR repo name
     id: ecr-repo-name
     env:
+      DOCKERFILE_PATH: ${{ inputs.path }}
       REPO: ${{ github.repository }}
       REPO_NAME: ${{ inputs.ecr-repo-name }}
     shell: bash
     run: |
+      if [[ ! $DOCKERFILE_PATH == '.' ]]; then
+        suffix="$(basename $DOCKERFILE_PATH)"
+        suffix="${suffix//\./}"
+      fi
       if [[ $REPO_NAME != '' ]]; then
         echo "::set-output name=repo-name::$REPO_NAME"
       else
-        echo "::set-output name=repo-name::app/${REPO/*\//}"
+        echo "::set-output name=repo-name::app/${REPO/*\//}-$suffix"
       fi
   - name: Create ECR repo
     uses: byerobot/create-ecr-repository-action@v1
@@ -105,7 +110,7 @@ runs:
         echo "::set-output name=skip-build-push::false"
       fi
   - name: Build and push
-    if: ! steps.check-existing-image.outputs.skip-build-push
+    if: ${{ ! steps.check-existing-image.outputs.skip-build-push }}
     uses: docker/build-push-action@v3
     with:
       context: ${{ inputs.path }}
