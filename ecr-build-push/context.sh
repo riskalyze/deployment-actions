@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
+suffix=""
 if [[ ! $DOCKERFILE_PATH == '.' ]]; then
   suffix="-$(basename "$DOCKERFILE_PATH")"
   suffix="${suffix//\./}"
