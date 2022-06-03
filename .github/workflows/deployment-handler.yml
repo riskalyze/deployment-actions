@@ -70,9 +70,9 @@ jobs:
     - uses: actions/checkout@v3
     - id: detect-files
       run: |
-        echo "::set-output name=cdk::$(find . -name cdk.json -exec dirname {} \; | jq -R -s -c 'split("\n")')"
-        echo "::set-output name=docker::$(find . -name Dockerfile -exec dirname {} \; | jq -R -s -c 'split("\n")')"
-        echo "::set-output name=helm::$(find . -name Chart.yaml -exec dirname {} \; | jq -R -s -c 'split("\n")')"
+        echo "::set-output name=cdk::$(find . -name cdk.json -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')"
+        echo "::set-output name=docker::$(find . -name Dockerfile -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')"
+        echo "::set-output name=helm::$(find . -name Chart.yaml -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')"
     outputs:
       cdk: ${{ steps.detect-files.outputs.cdk }}
       docker: ${{ steps.detect-files.outputs.docker }}
