@@ -26,12 +26,19 @@ inputs:
   ecr-region:
     description: The region to use for ECR.
     required: true
+  ecr-repo-name:
+    description: The ECR repo name to use. If none is given, it defaults to "app/<github-repo-name>".
+    required: false
   ecr-repo-policy:
     description: JSON policy to apply to the ECR repo.
     required: false
   ecr-role-arn:
     description: A role to assume for pulling packages from Codeartifact and publishing to ECR.
     required: true
+  path:
+    description: The path to the Dockerfile.
+    required: false
+    default: .
 
 runs:
   using: "composite"
@@ -51,8 +58,14 @@ runs:
     id: ecr-repo-name
     env:
       REPO: ${{ github.repository }}
+      REPO_NAME: ${{ inputs.ecr-repo-name }}
     shell: bash
-    run: echo "::set-output name=repo-name::app/${REPO/*\//}"
+    run: |
+      if [[ $REPO_NAME != '' ]]; then
+        echo "::set-output name=repo-name::$REPO_NAME"
+      else
+        echo "::set-output name=repo-name::app/${REPO/*\//}"
+      fi
   - name: Create ECR repo
     uses: byerobot/create-ecr-repository-action@v1
     id: create-ecr-repo
@@ -76,10 +89,24 @@ runs:
         --domain-owner ${{ inputs.codeartifact-domain-owner }} \
         --namespace ${{ inputs.codeartifact-namespace }} \
         --repository ${{ inputs.codeartifact-repository }}
+  - name: Check for existing image
+    id: check-existing-image
+    shell: bash
+    run: |
+      tags=$(aws ecr list-images \
+        --repository-name ${{ steps.ecr-repo-name.outputs.repo-name }} \
+        --query "imageIds[?imageTag=='${{ github.sha }}'].imageTag" \
+        --output text)
+      if [[ $tags != '' ]]; then
+        echo "::set-output name=skip-build-push::true"
+      else
+        echo "::set-output name=skip-build-push::false"
+      fi
   - name: Build and push
+    if: ! steps.check-existing-image.outputs.skip-build-push
     uses: docker/build-push-action@v3
     with:
-      context: .
+      context: ${{ inputs.path }}
       push: true
       tags: ${{ steps.create-ecr-repo.outputs.repository-uri }}:${{ github.sha }}
       cache-from: type=gha

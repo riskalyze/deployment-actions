@@ -33,8 +33,9 @@ inputs:
     description: A comma-separated list of environment variables that will be passed to CDK commands.
     required: false
   path:
-    description: The path of the CDK configuration (i.e. cdk.json).
-    required: true
+    description: The path to the CDK configuration (i.e. cdk.json).
+    required: false
+    default: .
   stacks:
     description: An optional list of stacks to deploy. Defaults to "--all" if none are given.
     required: false

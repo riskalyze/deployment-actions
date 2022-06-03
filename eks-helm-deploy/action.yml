@@ -11,6 +11,9 @@ inputs:
   namespace:
     description: The Kubernetes namespace to deploy into.
     required: true
+  path:
+    description: The path to the Chart.yaml. This is used to detect the chart name.
+    required: true
   region:
     description: The AWS region to deploy into.
     required: true
@@ -29,20 +32,20 @@ runs:
   steps:
   - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
     shell: bash
+  - name: Get chart name
+    id: chart-name
+    env:
+      CHART_PATH: ${{ inputs.path }}
+    shell: bash
+    run: echo "::set-output name=name::$(basename $(dirname $CHART_PATH))"
   - name: Download package
     if: inputs.task == 'deploy'
     uses: actions/download-artifact@v3
     with:
-      name: helm-package
+      name: helm-package-${{ steps.chart-name.outputs.name }}
   - uses: azure/setup-helm@v1
     with:
       version: '3.9.0'
-  - name: Get chart name
-    id: chart-name
-    env:
-      REPO: ${{ github.repository }}
-    shell: bash
-    run: echo "::set-output name=name::${REPO/*\//}"
   - name: Assume AWS role
     uses: aws-actions/configure-aws-credentials@v1
     with:

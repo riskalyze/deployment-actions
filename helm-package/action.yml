@@ -2,9 +2,6 @@ name: Helm template action
 description: Template Kubernetes resources using Helm
 
 inputs:
-  chart-dir:
-    description: The location of the helm chart.
-    required: false
   ecr-account-id:
     description: The AWS account ID for the ECR registry.
     required: false
@@ -14,6 +11,9 @@ inputs:
   ecr-role-arn:
     description: The role to assume for ECR authentication.
     required: false
+  path:
+    description: The path to the Chart.yaml.
+    required: true
 
 runs:
   using: "composite"
@@ -22,19 +22,13 @@ runs:
   - uses: azure/setup-helm@v1
     with:
       version: '3.9.0'
-  - name: Get chart info
-    id: chart-info
+  - name: Get chart name
+    id: chart-name
     env:
-      CHART_DIR: ${{ inputs.chart-dir }}
-      REPO: ${{ github.repository }}
+      CHART_PATH: ${{ inputs.path }}
     shell: bash
     run: |
-      if [ "$CHART_DIR" != '' ]; then
-        dir="$CHART_DIR"
-      else
-        dir="./infra/helm/${REPO/*\//}"
-      fi
-      echo "::set-output name=dir::$dir"
+      dir=$(dirname "$CHART_PATH")
       echo "::set-output name=name::$(basename $dir)"
   - name: Assume AWS role
     if: inputs.ecr-account-id != ''
@@ -52,16 +46,16 @@ runs:
            --password-stdin ${{ inputs.ecr-account-id }}.dkr.ecr.${{ inputs.ecr-region }}.amazonaws.com
   - name: Fetch Helm dependencies
     shell: bash
-    run: helm dep build ${{ steps.chart-info.outputs.dir }}
+    run: helm dep build ${{ inputs.path }}
   - name: Helm package
     shell: bash
     run: |
       echo "Running helm package..."
-      helm package "${{ steps.chart-info.outputs.dir }}"
-      mv ${{ steps.chart-info.outputs.name }}-*.tgz ${{ steps.chart-info.outputs.name }}.tgz
+      helm package "${{ inputs.path }}"
+      mv ${{ steps.chart-name.outputs.name }}-*.tgz ${{ steps.chart-name.outputs.name }}.tgz
   - name: Upload package
     uses: actions/upload-artifact@v3
     with:
       if-no-files-found: error
-      name: helm-package
-      path: ${{ steps.chart-info.outputs.name }}.tgz
+      name: helm-package-${{ steps.chart-name.outputs.name }}
+      path: ${{ steps.chart-name.outputs.name }}.tgz

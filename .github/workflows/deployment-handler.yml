@@ -80,7 +80,7 @@ jobs:
 
   cdk-deploy:
     concurrency: cdk-${{ inputs.environment }}
-    if: needs.detect-files.outputs.cdk != ''
+    if: needs.detect-files.outputs.cdk != '[]'
     needs: detect-files
     permissions:
       contents: read
@@ -109,11 +109,12 @@ jobs:
       url: ${{ steps.cdk-deploy.outputs.url }}
 
   ecr-build-push:
-    if: needs.detect-files.outputs.docker == 'true' && inputs.task == 'deploy'
+    if: needs.detect-files.outputs.docker != '[]' && inputs.task == 'deploy'
     needs: detect-files
     permissions:
       contents: read
       id-token: write
+    concurrency: ${{ github.sha }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -163,7 +164,7 @@ jobs:
         path: ${{ matrix.path }}
 
   helm-package:
-    if: needs.detect-files.outputs.helm == 'true' && inputs.task == 'deploy'
+    if: needs.detect-files.outputs.helm != '[]' && inputs.task == 'deploy'
     needs: detect-files
     permissions:
       contents: read
@@ -185,24 +186,28 @@ jobs:
     # even though the helm-package and ecr-build-push steps get skipped.
     if: |
       always() && 
-      needs.detect-files.outputs.helm == 'true' &&
+      needs.detect-files.outputs.helm != '[]' &&
       (needs.ecr-build-push.result == 'success' || needs.ecr-build-push.result == 'skipped') &&
       (needs.helm-package.result == 'success' || needs.helm-package.result == 'skipped')
     concurrency: eks-helm-${{ inputs.environment }}
-    permissions:
-      contents: read
-      id-token: write
     needs:
     - detect-files
     - helm-package
     - ecr-build-push
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        path: ${{ needs.detect-files.outputs.helm }}
     steps:
     - uses: byerobot/actions/eks-helm-deploy@main
       with:
         cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.deployment-target-name }}
         namespace: ${{ inputs.namespace }}
+        path: ${{ matrix.path }}
         region: ${{ inputs.region }}
         role-arn: ${{ inputs.cdk-role-arn }}
         task: ${{ inputs.task }}
