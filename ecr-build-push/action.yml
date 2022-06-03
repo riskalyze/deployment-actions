@@ -51,8 +51,6 @@ runs:
   using: "composite"
   steps:
   - uses: actions/checkout@v3
-  - name: Set up Docker Buildx
-    uses: docker/setup-buildx-action@v2
   - name: Assume ECR role
     uses: aws-actions/configure-aws-credentials@v1
     with:
@@ -67,24 +65,9 @@ runs:
       DOCKERFILE_PATH: ${{ inputs.path }}
       REPO: ${{ github.repository }}
       REPO_NAME: ${{ inputs.ecr-repo-name }}
+      SHA: ${{ github.sha }}
     shell: bash
-    run: |
-      if [[ ! $DOCKERFILE_PATH == '.' ]]; then
-        suffix="-$(basename $DOCKERFILE_PATH)"
-        suffix="${suffix//\./}"
-      fi
-      if [[ $REPO_NAME != '' ]]; then
-        echo "::set-output name=repo-name::$REPO_NAME"
-      else
-        echo "::set-output name=repo-name::app/${REPO/*\//}$suffix"
-        echo "::set-output name=dev-repo-name::dev/${REPO/*\//}$suffix"
-      fi
-      
-      if grep -iq "as dev" $DOCKERFILE_PATH/Dockerfile; then
-        echo "::set-output name=dev-stage::true"
-      else
-        echo "::set-output name=dev-stage::false"
-      fi
+    run: context.sh
   - name: Create ECR repo
     uses: byerobot/create-ecr-repository-action@v1
     id: create-ecr-repo
@@ -116,7 +99,10 @@ runs:
         --domain-owner ${{ inputs.codeartifact-domain-owner }} \
         --namespace ${{ inputs.codeartifact-namespace }} \
         --repository ${{ inputs.codeartifact-repository }}
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v2
   - name: Build and push
+    if: ${{ steps.context.outputs.needs-build == 'true' }}
     uses: docker/build-push-action@v3
     with:
       context: ${{ inputs.path }}
@@ -127,7 +113,7 @@ runs:
       secret-files: |
         "npmrc=/home/runner/.npmrc"
   - name: Build and push dev stage
-    if: ${{ steps.context.outputs.dev-stage == 'true' }}
+    if: ${{ steps.context.outputs.dev-stage == 'true' && steps.context.outputs.needs-dev-build == 'true' }}
     uses: docker/build-push-action@v3
     with:
       context: ${{ inputs.path }}
