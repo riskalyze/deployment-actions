@@ -2,19 +2,10 @@
 set -ueo pipefail
 
 if [ "$TASK" == "deploy" ]; then
-  echo "Creating namespace $NAMESPACE if it doesn't exist..."
-  kubectl apply -f - <<EOF
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: $NAMESPACE
-  labels:
-    istio-injection: enabled
-EOF
-
   params=(
     "upgrade" "$CHART_NAME" "$CHART_NAME.tgz"
     "--install"
+    "--create-namespace"
     "--namespace" "$NAMESPACE"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
     "--wait"
