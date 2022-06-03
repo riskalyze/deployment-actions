@@ -42,6 +42,11 @@ inputs:
     required: false
     default: .
 
+outputs:
+  ecr-repo-name:
+    description: The ECR repo name that was created.
+    value: ${{ steps.ecr-repo-name.outputs.repo-name }}
+
 runs:
   using: "composite"
   steps:
@@ -65,13 +70,13 @@ runs:
     shell: bash
     run: |
       if [[ ! $DOCKERFILE_PATH == '.' ]]; then
-        suffix="$(basename $DOCKERFILE_PATH)"
+        suffix="-$(basename $DOCKERFILE_PATH)"
         suffix="${suffix//\./}"
       fi
       if [[ $REPO_NAME != '' ]]; then
         echo "::set-output name=repo-name::$REPO_NAME"
       else
-        echo "::set-output name=repo-name::app/${REPO/*\//}-$suffix"
+        echo "::set-output name=repo-name::app/${REPO/*\//}$suffix"
       fi
   - name: Create ECR repo
     uses: byerobot/create-ecr-repository-action@v1
