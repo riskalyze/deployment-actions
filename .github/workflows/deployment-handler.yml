@@ -45,6 +45,9 @@ on:
       environment:
         required: true
         type: string
+      extra-helm-values:
+        required: false
+        type: string
       namespace:
         required: true
         type: string
@@ -214,6 +217,7 @@ jobs:
       with:
         cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.deployment-target-name }}
+        extra-values: ${{ inputs.extra-helm-values }}
         namespace: ${{ inputs.namespace }}
         path: ${{ matrix.path }}
         region: ${{ inputs.region }}

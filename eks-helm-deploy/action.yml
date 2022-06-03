@@ -10,6 +10,9 @@ inputs:
   environment:
     description: The Helm environment name, i.e. "production".
     required: true
+  extra-values:
+    description: A comma-separated list of extra values to set when installing the chart, i.e. "foo.maxWorkers=6,bar.enabled=true".
+    required: false
   namespace:
     description: The Kubernetes namespace to deploy into.
     required: true
@@ -70,6 +73,7 @@ runs:
       CHART_NAME: ${{ steps.chart-name.outputs.name }}
       CLUSTER: ${{ inputs.cluster }}
       ENVIRONMENT: ${{ inputs.environment }}
+      EXTRA_VALUES: ${{ inputs.extra-values }}
       NAMESPACE: ${{ inputs.namespace }}
       TAG: ${{ github.sha }}
       TASK: ${{ inputs.task }}

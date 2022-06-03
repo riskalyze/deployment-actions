@@ -3,7 +3,7 @@ set -ueo pipefail
 
 if [ "$TASK" == "deploy" ]; then
   echo "Creating namespace $NAMESPACE if it doesn't exist..."
-    kubectl apply -f - <<EOF
+  kubectl apply -f - <<EOF
 apiVersion: v1
 kind: Namespace
 metadata:
@@ -20,6 +20,11 @@ EOF
     "--set" "image.tag=$TAG"
     "--wait"
   )
+
+  if [ "$EXTRA_SET_VALUES" != "" ]; then
+    params+=("--set" "$EXTRA_SET_VALUES")
+  fi
+
   echo Running helm "${params[@]}"
   helm "${params[@]}"
 elif [ "$TASK" == "destroy" ]; then
