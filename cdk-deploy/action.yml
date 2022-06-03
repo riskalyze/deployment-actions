@@ -1,5 +1,7 @@
 name: CDK deploy action
 description: Deploys or destroys AWS infrastructure using CDK
+branding:
+  icon: cloud-lightning
 
 inputs:
   cdk-region:
@@ -42,9 +44,6 @@ inputs:
   task:
     description: The task to perform, i.e. "deploy" or "destroy".
     required: true
-
-branding:
-  icon: cloud-lightning
 
 outputs:
   url:

@@ -1,5 +1,7 @@
 name: Helm template action
 description: Template Kubernetes resources using Helm
+branding:
+  icon: package
 
 inputs:
   ecr-account-id:

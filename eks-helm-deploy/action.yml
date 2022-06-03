@@ -1,5 +1,7 @@
 name: EKS Helm deploy action
 description: Deploys or destroys Kubernetes resources in an EKS cluster using Helm
+branding:
+  icon: globe
 
 inputs:
   cluster:
