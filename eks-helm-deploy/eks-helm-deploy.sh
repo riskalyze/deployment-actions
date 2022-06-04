@@ -32,7 +32,6 @@ elif [ "$TASK" == "destroy" ]; then
     )
     echo Running helm "${params[@]}"
     helm "${params[@]}"
-    kubectl delete ns "$NAMESPACE"
   fi
 else
   echo "ERROR! Unrecognized action $TASK."
