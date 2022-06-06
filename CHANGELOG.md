@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.0.0](https://github.com/byerobot/actions/compare/v1.1.0...v2.0.0) (2022-06-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* Must pass a cluster input
+
+### Features
+
+* Add Helm ECR dependency support ([4997be8](https://github.com/byerobot/actions/commit/4997be8e1ee9794cadc8852df16d2e7d48347a33))
+* Add Helm ECR dependency support ([739eb69](https://github.com/byerobot/actions/commit/739eb69a6737144ec19386e8e2ecd738b6a1d6ca))
+* Add Helm ECR dependency support ([a6f365b](https://github.com/byerobot/actions/commit/a6f365b46095b067a47b1b1bc0c9c8e245b032fa))
+* Allow passing additional values to Helm ([71294d6](https://github.com/byerobot/actions/commit/71294d6692476c0eca337d3c5e5b6234a305f1e2))
+* Detect paths for helm, cdk, and docker ([0ccf591](https://github.com/byerobot/actions/commit/0ccf591de26c8939df6b70b12f0a7a81223293b9))
+* Package helm chart then deploy in separate step ([ba62e87](https://github.com/byerobot/actions/commit/ba62e87390209ce60784dfa2f5d6debf1d6acb93))
+* Specify image.tag as SHA ([22484bf](https://github.com/byerobot/actions/commit/22484bfd8f4891ea3386df2f17ab68b75a2f75b6))
+* Support assuming separate Codeartifact role ([6166491](https://github.com/byerobot/actions/commit/616649146416bd5a1dcfe1d94c1f72a2c166cc73))
+
+
+### Bug Fixes
+
+* Create namespace if it doesn't exist ([fa5a0b8](https://github.com/byerobot/actions/commit/fa5a0b88f5e9ac9e1a6119e45f5f16f2274b59f5))
+* Create namespace if it doesn't exist ([add3486](https://github.com/byerobot/actions/commit/add348634906ca262b96adad0f065d4086142653))
+* Don't wait for helm operations ([dac95d7](https://github.com/byerobot/actions/commit/dac95d78fdcbf1f0f1181c76aae0c1f3ba81af80))
+* Require cluster input ([41ee8ff](https://github.com/byerobot/actions/commit/41ee8ffc5448afdb8a1d45e15eee4f0f4d62215a))
+* set if: always() for eks-helm-deploy ([5693d02](https://github.com/byerobot/actions/commit/5693d02e82a31d699a1c9fe71efb73ebf10c8097))
+* ugly conditional for step success validation ([f7d2da9](https://github.com/byerobot/actions/commit/f7d2da958dcb8f6e107070a50c4c711936bd694a))
+* Use correct path to .npmrc ([abcbb1c](https://github.com/byerobot/actions/commit/abcbb1c79003d5fbebdcccbdf2514b98c45ac780))
+* Use helm to install/uninstall resources ([5ad37a9](https://github.com/byerobot/actions/commit/5ad37a9f1356ec68f98f0959ffdea5ad8e0c7bd5))
+
+
+### Performance Improvements
+
+* Only build Docker image on deploy tasks ([62aa0e3](https://github.com/byerobot/actions/commit/62aa0e3a386c1887643d9ecdcf15f3e9e8d46ca7))
+
 ## [1.1.0](https://github.com/byerobot/actions/compare/v1.0.1...v1.1.0) (2022-06-01)
 
 
