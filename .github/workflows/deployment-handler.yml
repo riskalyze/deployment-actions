@@ -61,8 +61,6 @@ on:
         required: true
         type: string
     secrets:
-      ecr-repo-policy:
-        required: false
       twingate-service-key:
         required: false
 
@@ -75,19 +73,15 @@ jobs:
       id: detect-files
       run: |
         cdk_files=$(find . -not -path '*/.*' -name cdk.json -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')
-        docker_files=$(find . -not -path '*/.*' -name Dockerfile -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')
         helm_files=$(find . -not -path '*/.*' -name Chart.yaml -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')
         
         echo "Found CDK files: $cdk_files"
-        echo "Found Docker files: $docker_files"
         echo "Found Helm files: $helm_files"
         
         echo "::set-output name=cdk::$cdk_files"
-        echo "::set-output name=docker::$docker_files"
         echo "::set-output name=helm::$helm_files"
     outputs:
       cdk: ${{ steps.detect-files.outputs.cdk }}
-      docker: ${{ steps.detect-files.outputs.docker }}
       helm: ${{ steps.detect-files.outputs.helm }}
 
   cdk-deploy:
@@ -120,61 +114,6 @@ jobs:
     outputs:
       url: ${{ steps.cdk-deploy.outputs.url }}
 
-  ecr-build-push:
-    if: needs.detect-files.outputs.docker != '[]' && inputs.task == 'deploy'
-    needs: detect-files
-    permissions:
-      contents: read
-      id-token: write
-    concurrency: ${{ github.sha }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path: ${{ fromJSON(needs.detect-files.outputs.docker) }}
-    steps:
-    - uses: byerobot/actions/ecr-build-push@main
-      with:
-        codeartifact-domain: ${{ inputs.codeartifact-domain }}
-        codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
-        codeartifact-namespace: ${{ inputs.codeartifact-namespace }}
-        codeartifact-region: ${{ inputs.codeartifact-region }}
-        codeartifact-repository: ${{ inputs.codeartifact-repository }}
-        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn }}
-        ecr-region: ${{ inputs.ecr-region }}
-        ecr-lifecycle-policy: |
-          {
-            "rules": [
-              {
-                "rulePriority": 2,
-                "description": "expire untagged images over 5 days old",
-                "selection": {
-                  "tagStatus": "untagged",
-                  "countType": "sinceImagePushed",
-                  "countUnit": "days",
-                  "countNumber": 5
-                },
-                "action": {
-                  "type": "expire"
-                }
-              },
-              {
-                "rulePriority": 3,
-                "description": "expire images when count exceeds 150",
-                "selection": {
-                  "tagStatus": "any",
-                  "countType": "imageCountMoreThan",
-                  "countNumber": 150
-                },
-                "action": {
-                  "type": "expire"
-                }
-              }
-            ]
-          }
-        ecr-repo-policy: ${{ secrets.ecr-repo-policy }}
-        ecr-role-arn: ${{ inputs.ecr-role-arn }}
-        path: ${{ matrix.path }}
-
   helm-package:
     if: needs.detect-files.outputs.helm != '[]' && inputs.task == 'deploy'
     needs: detect-files
@@ -195,17 +134,15 @@ jobs:
 
   eks-helm-deploy:
     # We have to use the ugly conditional below because we want this step to run on destroy,
-    # even though the helm-package and ecr-build-push steps get skipped.
+    # even though the helm-package step gets skipped.
     if: |
       always() && 
       needs.detect-files.outputs.helm != '[]' &&
-      (needs.ecr-build-push.result == 'success' || needs.ecr-build-push.result == 'skipped') &&
       (needs.helm-package.result == 'success' || needs.helm-package.result == 'skipped')
     concurrency: eks-helm-${{ inputs.environment }}
     needs:
     - detect-files
     - helm-package
-    - ecr-build-push
     permissions:
       contents: read
       id-token: write

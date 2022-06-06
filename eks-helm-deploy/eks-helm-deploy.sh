@@ -9,7 +9,6 @@ if [ "$TASK" == "deploy" ]; then
     "--force"
     "--namespace" "$NAMESPACE"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
-    "--wait"
   )
 
   if [ "$EXTRA_VALUES" != "" ]; then
@@ -28,10 +27,12 @@ elif [ "$TASK" == "destroy" ]; then
     params=(
       "uninstall" "$CHART_NAME"
       "--namespace" "$NAMESPACE"
-      "--wait"
     )
     echo Running helm "${params[@]}"
     helm "${params[@]}"
+
+    echo "Cleaning up namespace $NAMESPACE..."
+    kubectl delete ns "$NAMESPACE"
   fi
 else
   echo "ERROR! Unrecognized action $TASK."
