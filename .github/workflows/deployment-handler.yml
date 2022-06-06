@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       cdk-role-arn:
-        required: true
+        required: false
         type: string
       codeartifact-domain:
         required: false
@@ -40,6 +40,9 @@ on:
         required: false
         type: string
       ecr-role-arn:
+        required: false
+        type: string
+      eks-role-arn:
         required: false
         type: string
       environment:
@@ -159,7 +162,7 @@ jobs:
         namespace: ${{ inputs.namespace }}
         path: ${{ matrix.path }}
         region: ${{ inputs.region }}
-        role-arn: ${{ inputs.cdk-role-arn }}
+        role-arn: ${{ inputs.eks-role-arn }}
         task: ${{ inputs.task }}
         twingate-service-key: ${{ secrets.twingate-service-key }}
 
