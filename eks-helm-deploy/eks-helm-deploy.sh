@@ -8,6 +8,7 @@ if [ "$TASK" == "deploy" ]; then
     "--create-namespace"
     "--force"
     "--namespace" "$NAMESPACE"
+    "--render-subchart-notes"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
   )
 
