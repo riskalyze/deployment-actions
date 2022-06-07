@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.2](https://github.com/byerobot/actions/compare/v2.0.1...v2.0.2) (2022-06-07)
+
+
+### Bug Fixes
+
+* pin versions ([dc2e181](https://github.com/byerobot/actions/commit/dc2e18145fc6afc5ab084a79bbbd82555c7fdea6))
+
 ## [2.0.1](https://github.com/byerobot/actions/compare/v2.0.0...v2.0.1) (2022-06-07)
 
 
