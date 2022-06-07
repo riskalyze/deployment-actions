@@ -102,7 +102,7 @@ jobs:
       matrix:
         path: ${{ fromJSON(needs.detect-files.outputs.cdk) }}
     steps:
-    - uses: byerobot/actions/cdk-deploy@helm
+    - uses: byerobot/actions/cdk-deploy@v2.0.1
       id: cdk-deploy
       with:
         codeartifact-domain: ${{ inputs.codeartifact-domain }}
@@ -131,7 +131,7 @@ jobs:
       matrix:
         path: ${{ fromJSON(needs.detect-files.outputs.helm) }}
     steps:
-    - uses: byerobot/actions/helm-package@helm
+    - uses: byerobot/actions/helm-package@v2.0.1
       with:
         ecr-account-id: ${{ inputs.ecr-account-id }}
         ecr-region: ${{ inputs.ecr-region }}
@@ -157,7 +157,7 @@ jobs:
       matrix:
         path: ${{ fromJSON(needs.detect-files.outputs.helm) }}
     steps:
-    - uses: byerobot/actions/eks-helm-deploy@helm
+    - uses: byerobot/actions/eks-helm-deploy@v2.0.1
       with:
         cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.deployment-target-name }}
