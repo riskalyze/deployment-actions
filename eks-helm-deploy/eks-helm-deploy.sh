@@ -31,6 +31,10 @@ elif [ "$TASK" == "destroy" ]; then
     )
     echo Running helm "${params[@]}"
     helm "${params[@]}"
+    if [ "$EVENT_TYPE" == "destroy" ]; then
+      echo "Deleting namespace $NAMESPACE..."
+      kubectl delete ns "$NAMESPACE" || true
+    fi
   fi
 else
   echo "ERROR! Unrecognized action $TASK."

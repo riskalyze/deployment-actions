@@ -10,6 +10,9 @@ inputs:
   environment:
     description: The Helm environment name, i.e. "production".
     required: true
+  event-type:
+    description: The event type, e.g. "create", "edit", or "destroy".
+    required: true
   extra-values:
     description: Extra values to set when installing the chart, i.e. "foo.maxWorkers=6". Multi-line values are supported.
     required: false
@@ -73,6 +76,7 @@ runs:
       CHART_NAME: ${{ steps.chart-name.outputs.name }}
       CLUSTER: ${{ inputs.cluster }}
       ENVIRONMENT: ${{ inputs.environment }}
+      EVENT_TYPE: ${{ inputs.event-type }}
       EXTRA_VALUES: ${{ inputs.extra-values }}
       NAMESPACE: ${{ inputs.namespace }}
       TAG: ${{ github.sha }}
