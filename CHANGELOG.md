@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/byerobot/actions/compare/v2.0.0...v2.0.1) (2022-06-07)
+
+
+### Bug Fixes
+
+* Add minor tag workflow ([224896c](https://github.com/byerobot/actions/commit/224896c565fdfb19bcb7537d0261074265f756ad))
+
 ## [2.0.0](https://github.com/byerobot/actions/compare/v1.1.0...v2.0.0) (2022-06-06)
 
 
