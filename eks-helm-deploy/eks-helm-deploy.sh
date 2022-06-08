@@ -17,7 +17,6 @@ EOF
     "--install"
     "--force"
     "--namespace" "$NAMESPACE"
-    "--render-subchart-notes"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
   )
 
