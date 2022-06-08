@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.6](https://github.com/riskalyze/deployment-actions/compare/v2.0.5...v2.0.6) (2022-06-08)
+
+
+### Bug Fixes
+
+* Resolve "invalid value workflow reference: references to workflows must be rooted in '.github/workflows'" ([311f9f8](https://github.com/riskalyze/deployment-actions/commit/311f9f85b9b3225c0f827ee870655f6039312bad))
+
 ## [2.0.5](https://github.com/riskalyze/deployment-actions/compare/v2.0.4...v2.0.5) (2022-06-08)
 
 
