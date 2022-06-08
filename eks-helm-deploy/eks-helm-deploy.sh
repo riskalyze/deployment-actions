@@ -18,6 +18,7 @@ EOF
     "--force"
     "--namespace" "$NAMESPACE"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
+    "--set" "commonLabels.ansible-operator=global" # TODO: Remove this when we no longer use namespaced ansible-operators
   )
 
   if [ "$EXTRA_VALUES" != "" ]; then
