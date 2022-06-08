@@ -100,8 +100,6 @@ jobs:
         cdk-role-arn: ${{ inputs.cdk-role-arn }}
         path: ${{ inputs.cdk-config-path }}
         task: ${{ inputs.task }}
-    outputs:
-      url: ${{ steps.cdk-deploy.outputs.url }}
 
   helm-package:
     if: inputs.helm-chart-path != '' && inputs.task == 'deploy'
@@ -154,8 +152,10 @@ jobs:
     permissions:
       deployments: write
     steps:
-    - id: get-state
+    - id: context
       run: |
+        repo=${{ github.repository }}
+        echo "::set-output name=repo::${repo/*\//}"
         if [[ ${{ needs.cdk-deploy.result }} == 'skipped' ]] || [[ ${{ needs.cdk-deploy.result }} == 'success' ]]; then
           if [[ ${{ needs.eks-helm-deploy.result }} == 'skipped' ]] || [[ ${{ needs.eks-helm-deploy.result }} == 'success' ]]; then
             echo "::set-output name=state::success"
@@ -168,8 +168,8 @@ jobs:
       uses: chrnorm/deployment-status@v2
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        environment-url: ${{ needs.cdk-deploy.outputs.url }}
-        state: ${{ steps.get-state.outputs.state }}
+        environment-url: https://${{ inputs.namespace }}-${{ steps.context.outputs.repo }}.riskalyze-${{ inputs.deployment-target-name }}-us.com/
+        state: ${{ steps.context.outputs.state }}
         deployment-id: ${{ inputs.deployment-id }}
     - name: Update deployment status (destroy)
       uses: strumwolf/delete-deployment-environment@v2
