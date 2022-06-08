@@ -2,10 +2,20 @@
 set -ueo pipefail
 
 if [ "$TASK" == "deploy" ]; then
+  echo "Ensuring namespace $NAMESPACE exists..."
+  cat << EOF | kubectl apply -f -
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: $NAMESPACE
+  labels:
+    istio-injection: enabled
+EOF
+  fi
+
   params=(
     "upgrade" "$CHART_NAME" "$CHART_NAME.tgz"
     "--install"
-    "--create-namespace"
     "--force"
     "--namespace" "$NAMESPACE"
     "--render-subchart-notes"
