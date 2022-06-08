@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/riskalyze/deployment-actions/compare/v2.0.13...v2.1.0) (2022-06-08)
+
+
+### Features
+
+* Build Dockerfile if dockerfile-path is given ([9c6ba42](https://github.com/riskalyze/deployment-actions/commit/9c6ba42d1eb3468356e64a1ef65fe15e5d8120e1))
+
 ## [2.0.13](https://github.com/riskalyze/deployment-actions/compare/v2.0.12...v2.0.13) (2022-06-08)
 
 
