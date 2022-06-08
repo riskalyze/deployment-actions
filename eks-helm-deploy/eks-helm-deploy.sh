@@ -11,7 +11,6 @@ metadata:
   labels:
     istio-injection: enabled
 EOF
-  fi
 
   params=(
     "upgrade" "$CHART_NAME" "$CHART_NAME.tgz"
