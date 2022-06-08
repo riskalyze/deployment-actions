@@ -3,6 +3,9 @@ name: Deployment handler
 on:
   workflow_call:
     inputs:
+      cdk-config-path:
+        required: false
+        type: string
       cdk-role-arn:
         required: false
         type: string
@@ -54,6 +57,9 @@ on:
       extra-helm-values:
         required: false
         type: string
+      helm-chart-path:
+        required: false
+        type: string
       namespace:
         required: true
         type: string
@@ -71,36 +77,13 @@ on:
         required: false
 
 jobs:
-  detect-files:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - name: Detect files
-      id: detect-files
-      run: |
-        cdk_files=$(find . -not -path '*/.*' -name cdk.json -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')
-        helm_files=$(find . -not -path '*/.*' -name Chart.yaml -exec dirname {} \; | jq -R -s -c 'split("\n")[:-1]')
-        
-        echo "Found CDK files: $cdk_files"
-        echo "Found Helm files: $helm_files"
-        
-        echo "::set-output name=cdk::$cdk_files"
-        echo "::set-output name=helm::$helm_files"
-    outputs:
-      cdk: ${{ steps.detect-files.outputs.cdk }}
-      helm: ${{ steps.detect-files.outputs.helm }}
-
   cdk-deploy:
     concurrency: cdk-${{ inputs.environment }}
-    if: needs.detect-files.outputs.cdk != '[]'
-    needs: detect-files
+    if: inputs.cdk-config-path != ''
     permissions:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path: ${{ fromJSON(needs.detect-files.outputs.cdk) }}
     steps:
     - uses: byerobot/actions/cdk-deploy@v2.0.1
       id: cdk-deploy
@@ -115,47 +98,39 @@ jobs:
         environment: ${{ inputs.environment }}
         cdk-region: ${{ inputs.region }}
         cdk-role-arn: ${{ inputs.cdk-role-arn }}
-        path: ${{ matrix.path }}
+        path: ${{ inputs.cdk-config-path }}
         task: ${{ inputs.task }}
     outputs:
       url: ${{ steps.cdk-deploy.outputs.url }}
 
   helm-package:
-    if: needs.detect-files.outputs.helm != '[]' && inputs.task == 'deploy'
-    needs: detect-files
+    if: inputs.helm-chart-path != '' && inputs.task == 'deploy'
     permissions:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path: ${{ fromJSON(needs.detect-files.outputs.helm) }}
     steps:
     - uses: byerobot/actions/helm-package@v2.0.1
       with:
         ecr-account-id: ${{ inputs.ecr-account-id }}
         ecr-region: ${{ inputs.ecr-region }}
         ecr-role-arn: ${{ inputs.ecr-role-arn }}
-        path: ${{ matrix.path }}
+        path: ${{ inputs.helm-chart-path }}
 
   eks-helm-deploy:
     # We have to use the ugly conditional below because we want this step to run on destroy,
     # even though the helm-package step gets skipped.
     if: |
       always() && 
-      needs.detect-files.outputs.helm != '[]' &&
+      inputs.helm-chart-path != '' &&
       (needs.helm-package.result == 'success' || needs.helm-package.result == 'skipped')
     concurrency: eks-helm-${{ inputs.environment }}
     needs:
-    - detect-files
     - helm-package
     permissions:
       contents: read
       id-token: write
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        path: ${{ fromJSON(needs.detect-files.outputs.helm) }}
     steps:
     - uses: byerobot/actions/eks-helm-deploy@v2.0.1
       with:
@@ -164,7 +139,7 @@ jobs:
         event-type: ${{ inputs.event-type }}
         extra-values: ${{ inputs.extra-helm-values }}
         namespace: ${{ inputs.namespace }}
-        path: ${{ matrix.path }}
+        path: ${{ inputs.helm-chart-path }}
         region: ${{ inputs.region }}
         role-arn: ${{ inputs.eks-role-arn }}
         task: ${{ inputs.task }}
