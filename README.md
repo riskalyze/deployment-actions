@@ -4,7 +4,7 @@ A collection of GitHub actions, primarily for deploying with [CDK](https://aws.a
 
 ## Overview
 
-### `workflows/deployment-handler.yml`
+### `.github/workflows/deployment-handler.yml`
 
 A reusable workflow that detects the presence of CDK, Docker, and Helm, and builds/deploys accordingly.
 
