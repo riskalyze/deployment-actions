@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.7](https://github.com/riskalyze/deployment-actions/compare/v2.0.6...v2.0.7) (2022-06-08)
+
+
+### Bug Fixes
+
+* Create namespace using kubectl and enable istio-injection ([1e2ee37](https://github.com/riskalyze/deployment-actions/commit/1e2ee37fe4d391108e35772c211a53cef1b07220))
+
 ## [2.0.6](https://github.com/riskalyze/deployment-actions/compare/v2.0.5...v2.0.6) (2022-06-08)
 
 
