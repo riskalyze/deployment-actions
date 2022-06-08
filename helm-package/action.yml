@@ -48,6 +48,10 @@ runs:
   - name: Helm package
     shell: bash
     run: |
+      if [ -d "infra/database" ]; then
+        echo "Found database migrations. Copying into chart directory...
+        cp -R infra/docker ${{ inputs.path }}
+      fi
       echo "Running helm package..."
       helm package "${{ inputs.path }}"
       mv ${{ steps.chart-name.outputs.name }}-*.tgz ${{ steps.chart-name.outputs.name }}.tgz
