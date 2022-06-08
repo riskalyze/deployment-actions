@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.10](https://github.com/riskalyze/deployment-actions/compare/v2.0.9...v2.0.10) (2022-06-08)
+
+
+### Bug Fixes
+
+* Copy database migrations into chart dir ([aa4d908](https://github.com/riskalyze/deployment-actions/commit/aa4d9080aeb77467085941af89090c4a338940bb))
+
 ## [2.0.9](https://github.com/riskalyze/deployment-actions/compare/v2.0.8...v2.0.9) (2022-06-08)
 
 
