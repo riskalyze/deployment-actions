@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.13](https://github.com/riskalyze/deployment-actions/compare/v2.0.12...v2.0.13) (2022-06-08)
+
+
+### Bug Fixes
+
+* Parse an environment-url from inputs ([f44c9c5](https://github.com/riskalyze/deployment-actions/commit/f44c9c54c5a996a3e3c4ecb568b67f72ca389839))
+
 ## [2.0.12](https://github.com/riskalyze/deployment-actions/compare/v2.0.11...v2.0.12) (2022-06-08)
 
 
