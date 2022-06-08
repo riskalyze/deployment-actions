@@ -40,7 +40,7 @@ elif [ "$TASK" == "destroy" ]; then
         "--namespace" "$NAMESPACE"
       )
       echo Running helm "${params[@]}"
-      helm "${params[@]}"
+      helm "${params[@]}" || true
 
       if [ "$EVENT_TYPE" == "destroy" ]; then
         echo "Deleting namespace $NAMESPACE..."
