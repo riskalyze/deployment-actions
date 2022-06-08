@@ -34,15 +34,20 @@ elif [ "$TASK" == "destroy" ]; then
     echo "ERROR! Cannot destroy a production environment!!"
     exit 1
   else
-    params=(
-      "uninstall" "$CHART_NAME"
-      "--namespace" "$NAMESPACE"
-    )
-    echo Running helm "${params[@]}"
-    helm "${params[@]}"
-    if [ "$EVENT_TYPE" == "destroy" ]; then
-      echo "Deleting namespace $NAMESPACE..."
-      kubectl delete ns "$NAMESPACE" || true
+    if kubectl get ns "$NAMESPACE"; then
+      params=(
+        "uninstall" "$CHART_NAME"
+        "--namespace" "$NAMESPACE"
+      )
+      echo Running helm "${params[@]}"
+      helm "${params[@]}"
+
+      if [ "$EVENT_TYPE" == "destroy" ]; then
+        echo "Deleting namespace $NAMESPACE..."
+        kubectl delete ns "$NAMESPACE" || true
+      fi
+    else
+      echo "Failed to find $NAMESPACE. It was probably deleted by another deployment action."
     fi
   fi
 else
