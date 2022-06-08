@@ -49,7 +49,7 @@ runs:
     shell: bash
     run: |
       if [ -d "infra/database" ]; then
-        echo "Found database migrations. Copying into chart directory...
+        echo "Found database migrations. Copying into chart directory..."
         cp -R infra/docker ${{ inputs.path }}
       fi
       echo "Running helm package..."
