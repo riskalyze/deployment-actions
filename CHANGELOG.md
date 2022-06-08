@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.0.4](https://github.com/riskalyze/deployment-actions/compare/v2.0.3...v2.0.4) (2022-06-08)
+
+
+### Bug Fixes
+
+* Add major tags ([0178631](https://github.com/riskalyze/deployment-actions/commit/01786310b088a4742d5ed9f1bb1ce4049d624e95))
+* Pin to v2 ([0178631](https://github.com/riskalyze/deployment-actions/commit/01786310b088a4742d5ed9f1bb1ce4049d624e95))
+* Update refs to riskalyze/deployment-actions ([0178631](https://github.com/riskalyze/deployment-actions/commit/01786310b088a4742d5ed9f1bb1ce4049d624e95))
+
 ## [2.0.3](https://github.com/riskalyze/deployment-actions/compare/v2.0.2...v2.0.3) (2022-06-08)
 
 
