@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.0.12](https://github.com/riskalyze/deployment-actions/compare/v2.0.11...v2.0.12) (2022-06-08)
+
+
+### Bug Fixes
+
+* Don't fail if helm uninstall fails ([2e67423](https://github.com/riskalyze/deployment-actions/commit/2e67423f99547b2a8bdfe229252fbe94e0018273))
+* Helm uninstall only if namespace exists ([111b6b5](https://github.com/riskalyze/deployment-actions/commit/111b6b561e06d9b8e60fcff3bf45b111edcebde1))
+
 ## [2.0.11](https://github.com/riskalyze/deployment-actions/compare/v2.0.10...v2.0.11) (2022-06-08)
 
 
