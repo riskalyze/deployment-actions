@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.5](https://github.com/riskalyze/deployment-actions/compare/v2.0.4...v2.0.5) (2022-06-08)
+
+
+### Bug Fixes
+
+* Move deployment-handler.yml into /workflows ([0d6246f](https://github.com/riskalyze/deployment-actions/commit/0d6246fa25fabe06fc3c0883ae109060c1f6b918))
+
 ## [2.0.4](https://github.com/riskalyze/deployment-actions/compare/v2.0.3...v2.0.4) (2022-06-08)
 
 
