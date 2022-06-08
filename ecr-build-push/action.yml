@@ -1,7 +1,5 @@
 name: ECR build and push action
 description: Builds and pushes Docker images to ECR
-branding:
-  icon: anchor
 
 inputs:
   codeartifact-domain:

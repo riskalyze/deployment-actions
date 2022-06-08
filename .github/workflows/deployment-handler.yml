@@ -85,7 +85,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-    - uses: byerobot/actions/cdk-deploy@v2.0.1
+    - uses: riskalyze/deployment-actions/cdk-deploy@v2
       id: cdk-deploy
       with:
         codeartifact-domain: ${{ inputs.codeartifact-domain }}
@@ -110,7 +110,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-    - uses: byerobot/actions/helm-package@v2.0.1
+    - uses: riskalyze/deployment-actions/helm-package@v2
       with:
         ecr-account-id: ${{ inputs.ecr-account-id }}
         ecr-region: ${{ inputs.ecr-region }}
@@ -132,7 +132,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-    - uses: byerobot/actions/eks-helm-deploy@v2.0.1
+    - uses: riskalyze/deployment-actions/eks-helm-deploy@v2
       with:
         cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.deployment-target-name }}

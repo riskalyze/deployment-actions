@@ -16,10 +16,10 @@ A composite action that installs node dependencies, authenticates with AWS, and 
 
 A composite action that creates an ECR repo if needed, then builds and pushes a Docker image to ECR.
 
-### `eks-deploy`
+### `eks-helm-deploy`
 
-A composite action that downloads manifests from GitHub artifacts and deploys them to an EKS cluster.
+A composite action that downloads a packaged helm chart from GitHub artifacts and deploys them to an EKS cluster.
 
-### `helm-template`
+### `helm-package`
 
-A composite action that runs `helm template` in a folder and uploads the manifests to a GitHub artifact.
+A composite action that packages a helm chart and uploads the manifests to a GitHub artifact.
