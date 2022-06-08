@@ -1,6 +1,6 @@
-# actions
+# deployment-actions
 
-A collection of GitHub actions, primarily for deploying with [CDK](https://aws.amazon.com/cdk/).
+A collection of GitHub actions, primarily for deploying with [CDK](https://aws.amazon.com/cdk/) and Helm.
 
 ## Overview
 
