@@ -36,6 +36,9 @@ on:
       deployment-target-name:
         required: true
         type: string
+      dockerfile-path:
+        required: false
+        type: string
       ecr-account-id:
         required: false
         type: string
@@ -73,6 +76,10 @@ on:
         required: true
         type: string
     secrets:
+      ecr-lifecycle-policy:
+        required: false
+      ecr-repo-policy:
+        required: false
       twingate-service-key:
         required: false
 
@@ -101,6 +108,27 @@ jobs:
         path: ${{ inputs.cdk-config-path }}
         task: ${{ inputs.task }}
 
+  ecr-build-push:
+    if: inputs.dockerfile-path != '' && inputs.task == 'deploy'
+    concurrency: ${{ github.sha }}
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: riskalyze/deployment-actions/ecr-build-push@v2
+        with:
+          codeartifact-domain: ${{ inputs.codeartifact-domain }}
+          codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
+          codeartifact-namespace: ${{ inputs.codeartifact-namespace }}
+          codeartifact-region: ${{ inputs.codeartifact-region }}
+          codeartifact-repository: ${{ inputs.codeartifact-repository }}
+          ecr-region: ${{ inputs.ecr-region }}
+          ecr-lifecycle-policy: ${{ secrets.ecr-lifecycle-policy }}
+          ecr-repo-policy: ${{ secrets.ecr-repo-policy }}
+          ecr-role-arn: ${{ inputs.ecr-role-arn }}
+          path: ${{ inputs.dockerfile-path }}
+
   helm-package:
     if: inputs.helm-chart-path != '' && inputs.task == 'deploy'
     permissions:
@@ -119,11 +147,13 @@ jobs:
     # We have to use the ugly conditional below because we want this step to run on destroy,
     # even though the helm-package step gets skipped.
     if: |
-      always() && 
+      always() &&
       inputs.helm-chart-path != '' &&
+      (needs.ecr-build-push.result == 'success' || needs.ecr-build-push.result == 'skipped') &&
       (needs.helm-package.result == 'success' || needs.helm-package.result == 'skipped')
     concurrency: eks-helm-${{ inputs.environment }}
     needs:
+    - ecr-build-push
     - helm-package
     permissions:
       contents: read
