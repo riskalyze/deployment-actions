@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.8](https://github.com/riskalyze/deployment-actions/compare/v2.0.7...v2.0.8) (2022-06-08)
+
+
+### Bug Fixes
+
+* update README ([15d0b16](https://github.com/riskalyze/deployment-actions/commit/15d0b16f09482e8aa3ef8be3db21ac1349b2ff1f))
+
 ## [2.0.7](https://github.com/riskalyze/deployment-actions/compare/v2.0.6...v2.0.7) (2022-06-08)
 
 
