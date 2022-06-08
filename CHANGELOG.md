@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.3](https://github.com/byerobot/actions/compare/v2.0.2...v2.0.3) (2022-06-08)
+
+
+### Bug Fixes
+
+* Add  inputs for cdk-config-path and helm-chart-path ([bc83676](https://github.com/byerobot/actions/commit/bc836762941de83a34abbc1fd7633fb43fe4c7b7))
+
 ## [2.0.2](https://github.com/byerobot/actions/compare/v2.0.1...v2.0.2) (2022-06-07)
 
 
