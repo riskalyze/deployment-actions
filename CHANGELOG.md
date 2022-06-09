@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/riskalyze/deployment-actions/compare/v2.1.0...v2.1.1) (2022-06-08)
+
+
+### Bug Fixes
+
+* set ansible-operator: global in helm upgrade ([f0860ee](https://github.com/riskalyze/deployment-actions/commit/f0860eeb366ad446021ffa0b9ba34d3c7442eef3))
+
 ## [2.1.0](https://github.com/riskalyze/deployment-actions/compare/v2.0.13...v2.1.0) (2022-06-08)
 
 
