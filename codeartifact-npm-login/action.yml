@@ -1,0 +1,52 @@
+name: Codeartifact npm login action
+description: Logs npm in to a Codeartifact registry
+
+inputs:
+  domain:
+    description: The Codeartifact domain.
+    required: false
+    default: riskalyze
+  domain-owner:
+    description: The Codeartifact domain owner.
+    required: true
+  namespace:
+    description: The Codeartifact namespace.
+    required: false
+    default: rsk
+  region:
+    description: The region to use for Codeartifact.
+    required: false
+    default: us-east-2
+  repository:
+    description: The Codeartifact repository.
+    required: false
+    default: npm
+  role-arn:
+    description: A role to assume for authenticating with Codeartifact.
+    required: true
+
+outputs:
+  npmrc-path:
+    description: The path to the .npmrc that was created
+    value: ${{ steps.auth.outputs.npmrc-path }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: Assume Codeartifact role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.region }}
+      role-to-assume: ${{ inputs.role-arn }}
+  - name: Authenticate with CodeArtifact
+    id: auth
+    if: inputs.repository != ''
+    shell: bash
+    run: |
+      aws codeartifact login \
+        --tool npm \
+        --domain ${{ inputs.domain }} \
+        --domain-owner ${{ inputs.domain-owner }} \
+        --namespace ${{ inputs.namespace }} \
+        --repository ${{ inputs.repository }}
+      echo "::set-output name=npmrc-path::$HOME/.npmrc"

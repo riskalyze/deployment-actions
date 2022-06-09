@@ -83,24 +83,13 @@ runs:
       repository: ${{ steps.context.outputs.dev-repo-name }}
       lifecycle-policy: ${{ inputs.ecr-lifecycle-policy }}
       repository-policy: ${{ inputs.ecr-repo-policy }}
-  - name: Assume ECR role
+  - name: Login to Codeartifact
     if: inputs.codeartifact-role-arn != ''
-    uses: aws-actions/configure-aws-credentials@v1
-    with:
-      aws-region: ${{ inputs.codeartifact-region }}
-      role-to-assume: ${{ inputs.codeartifact-role-arn }}
-  - name: Authenticate with CodeArtifact
     id: codeartifact-auth
-    if: inputs.codeartifact-repository != ''
-    shell: bash
-    run: |
-      aws codeartifact login \
-        --tool npm \
-        --domain ${{ inputs.codeartifact-domain }} \
-        --domain-owner ${{ inputs.codeartifact-domain-owner }} \
-        --namespace ${{ inputs.codeartifact-namespace }} \
-        --repository ${{ inputs.codeartifact-repository }}
-      echo "::set-output name=npmrc-path::$HOME/.npmrc"
+    uses: riskalyze/deployment-actions/codeartifact-npm-login@v2
+    with:
+      domain-owner: ${{ inputs.codeartifact-domain-owner }}
+      role-arn: ${{ inputs.codeartifact-role-arn }}
   - name: Set up Docker Buildx
     uses: docker/setup-buildx-action@v2
   - name: Build and push
