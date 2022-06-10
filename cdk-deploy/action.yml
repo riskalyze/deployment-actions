@@ -8,23 +8,11 @@ inputs:
   cdk-role-arn:
     description: An AWS role ARN that will be assumed for CDK operations.
     required: true
-  codeartifact-domain:
-    description: The Codeartifact domain.
-    required: false
   codeartifact-domain-owner:
     description: The Codeartifact domain owner.
     required: false
-  codeartifact-namespace:
-    description: The Codeartifact namespace.
-    required: false
-  codeartifact-region:
-    description: The region where the Codeartifact domain resides.
-    required: false
   codeartifact-role-arn:
     description: The AWS role ARN that will be assumed for Codeartifact operations.
-    required: false
-  codeartifact-repository:
-    description: The Codeartifact repository.
     required: false
   environment:
     description: The environment to deploy into, i.e. "production".
@@ -65,22 +53,13 @@ runs:
     with:
       node-version: 16
       cache: ${{ steps.detect-package-manager.outputs.cache-type }}
-  - name: Assume Codeartifact role
-    if: inputs.codeartifact-repository != ''
-    uses: aws-actions/configure-aws-credentials@v1
+  - name: Login to Codeartifact
+    if: inputs.codeartifact-role-arn != ''
+    id: codeartifact-auth
+    uses: riskalyze/deployment-actions/codeartifact-npm-login@v2
     with:
-      aws-region: ${{ inputs.codeartifact-region }}
-      role-to-assume: ${{ inputs.codeartifact-role-arn }}
-  - name: Authenticate with CodeArtifact
-    if: inputs.codeartifact-repository != ''
-    shell: bash
-    run: |
-      aws codeartifact login \
-        --tool npm \
-        --domain ${{ inputs.codeartifact-domain }} \
-        --domain-owner ${{ inputs.codeartifact-domain-owner }} \
-        --namespace ${{ inputs.codeartifact-namespace }} \
-        --repository ${{ inputs.codeartifact-repository }}
+      domain-owner: ${{ inputs.codeartifact-domain-owner }}
+      role-arn: ${{ inputs.codeartifact-role-arn }}
   - name: Install dependencies
     shell: bash
     run: ${{ steps.detect-package-manager.outputs.dependency-command }}

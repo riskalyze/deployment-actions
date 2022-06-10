@@ -2,20 +2,8 @@ name: ECR build and push action
 description: Builds and pushes Docker images to ECR
 
 inputs:
-  codeartifact-domain:
-    description: The Codeartifact domain.
-    required: false
   codeartifact-domain-owner:
     description: The Codeartifact domain owner.
-    required: false
-  codeartifact-namespace:
-    description: The Codeartifact namespace.
-    required: false
-  codeartifact-region:
-    description: The region to use for Codeartifact.
-    required: false
-  codeartifact-repository:
-    description: The Codeartifact repository.
     required: false
   codeartifact-role-arn:
     description: A role to assume for authenticating with Codeartifact.
