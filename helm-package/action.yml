@@ -50,7 +50,7 @@ runs:
     run: |
       cp -R infra/database ${{ inputs.path }} || true
       echo "Running helm package..."
-      helm package "${{ inputs.path }}"
+      helm package "${{ inputs.path }}" --app-version ${{ github.sha }}
       mv ${{ steps.chart-name.outputs.name }}-*.tgz ${{ steps.chart-name.outputs.name }}.tgz
   - name: Upload package
     uses: actions/upload-artifact@v3

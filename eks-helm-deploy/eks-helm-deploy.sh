@@ -16,7 +16,7 @@ EOF
     "upgrade" "$CHART_NAME" "$CHART_NAME.tgz"
     "--install"
     "--namespace" "$NAMESPACE"
-    "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
+    "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT"
     "--set" "commonLabels.ansible-operator=global" # TODO: Remove this when we no longer use namespaced ansible-operators
   )
   if [[ "$ENVIRONMENT" =~ ^prod ]]; then
