@@ -15,11 +15,15 @@ EOF
   params=(
     "upgrade" "$CHART_NAME" "$CHART_NAME.tgz"
     "--install"
-    "--force"
     "--namespace" "$NAMESPACE"
     "--set" "cluster=$CLUSTER,environment=$ENVIRONMENT,image.tag=$TAG"
     "--set" "commonLabels.ansible-operator=global" # TODO: Remove this when we no longer use namespaced ansible-operators
   )
+  if [[ "$ENVIRONMENT" =~ ^prod ]]; then
+    params+=("--wait")
+  else
+    params+=("--force")
+  fi
 
   if [ "$EXTRA_VALUES" != "" ]; then
     while IFS= read -r value; do
@@ -44,7 +48,7 @@ elif [ "$TASK" == "destroy" ]; then
 
       if [ "$EVENT_TYPE" == "destroy" ]; then
         echo "Deleting namespace $NAMESPACE..."
-        kubectl delete ns "$NAMESPACE" || true
+        kubectl delete ns "$NAMESPACE" --wait=false || true
       fi
     else
       echo "Failed to find $NAMESPACE. It was probably deleted by another deployment action."
