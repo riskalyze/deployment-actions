@@ -30,11 +30,11 @@ fi
 # Check if a build is necessary
 tags=$(aws ecr list-images \
   --repository-name "$name" \
-  --query "imageIds[?imageTag==\"$SHA\"].imageTag" \
+  --query "imageIds[?imageTag==\`$SHA\`].imageTag" \
   --output text)
 dev_tags=$(aws ecr list-images \
   --repository-name "$name" \
-  --query "imageIds[?imageTag==\"$SHA\"].imageTag" \
+  --query "imageIds[?imageTag==\`$SHA\`].imageTag" \
   --output text)
 if [[ $tags != '' ]]; then
   echo "Image with SHA $SHA already exists; no build is needed."
