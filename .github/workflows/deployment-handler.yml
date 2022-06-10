@@ -96,7 +96,7 @@ jobs:
       id: cdk-deploy
       with:
         codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
-        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn }}
+        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn || inputs.ecr-role-arn }}
         env-vars: ACCOUNT_NAME=${{ inputs.deployment-target-name }},NAMESPACE=${{ inputs.namespace }}
         environment: ${{ inputs.environment }}
         cdk-region: ${{ inputs.region }}
@@ -115,7 +115,7 @@ jobs:
       - uses: riskalyze/deployment-actions/ecr-build-push@v2
         with:
           codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
-          codeartifact-role-arn: ${{ inputs.codeartifact-role-arn }}
+          codeartifact-role-arn: ${{ inputs.codeartifact-role-arn || inputs.ecr-role-arn }}
           ecr-region: ${{ inputs.ecr-region }}
           ecr-lifecycle-policy: ${{ secrets.ecr-lifecycle-policy }}
           ecr-repo-policy: ${{ secrets.ecr-repo-policy }}
