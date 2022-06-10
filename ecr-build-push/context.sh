@@ -13,13 +13,17 @@ if [[ $REPO_NAME != '' ]]; then
 else
   name="app/${REPO/*\//}$suffix"
 fi
+echo "Repo name: $name"
+echo "Dev repo name: ${name/app/dev}"
 echo "::set-output name=repo-name::$name"
 echo "::set-output name=dev-repo-name::${name/app/dev}"
 
 # Check if a dev stage is present
 if grep -iq "as dev" "$DOCKERFILE_PATH"/Dockerfile; then
+  echo "Dev stage was detected."
   echo "::set-output name=dev-stage::true"
 else
+  echo "No dev stage was detected."
   echo "::set-output name=dev-stage::false"
 fi
 
@@ -33,12 +37,16 @@ dev_tags=$(aws ecr list-images \
   --query "imageIds[?imageTag==\"$SHA\"].imageTag" \
   --output text)
 if [[ $tags != '' ]]; then
+  echo "Image with SHA $SHA already exists; no build is needed."
   echo "::set-output name=needs-build::false"
 else
+  echo "Build is needed."
   echo "::set-output name=needs-build::true"
 fi
 if [[ $dev_tags != '' ]]; then
+  echo "Dev image with SHA $SHA already exists; no build is needed."
   echo "::set-output name=needs-dev-build::false"
 else
+  echo "Dev build is needed."
   echo "::set-output name=needs-dev-build::true"
 fi
