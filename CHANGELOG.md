@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.2.0](https://github.com/riskalyze/deployment-actions/compare/v2.1.1...v2.2.0) (2022-06-10)
+
+
+### Features
+
+* Add codeartifact-npm-login action ([1deca82](https://github.com/riskalyze/deployment-actions/commit/1deca82ff00318fa47b7bb4c0e5adc7a7172aabd))
+
+
+### Bug Fixes
+
+* Don't use --force in prod ([c326f81](https://github.com/riskalyze/deployment-actions/commit/c326f812ec3aa782856a83f257444a97705e39b3))
+* Don't wait for namespace deletion ([c326f81](https://github.com/riskalyze/deployment-actions/commit/c326f812ec3aa782856a83f257444a97705e39b3))
+* Simplify ecr-build-push and cdk-deploy actions ([bacb306](https://github.com/riskalyze/deployment-actions/commit/bacb306ef4a315c37a0d4d9fb5cfec7648ab8be7))
+* Wait for resources in prod ([c326f81](https://github.com/riskalyze/deployment-actions/commit/c326f812ec3aa782856a83f257444a97705e39b3))
+
 ## [2.1.1](https://github.com/riskalyze/deployment-actions/compare/v2.1.0...v2.1.1) (2022-06-08)
 
 
