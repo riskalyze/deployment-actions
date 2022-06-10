@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.2](https://github.com/riskalyze/deployment-actions/compare/v2.2.1...v2.2.2) (2022-06-10)
+
+
+### Bug Fixes
+
+* Resolve ecr needs-build detection bug ([9d267c1](https://github.com/riskalyze/deployment-actions/commit/9d267c131930a922b0c1c3464fa4c823e818bab9))
+* Set chart AppVersion to SHA ([3646245](https://github.com/riskalyze/deployment-actions/commit/364624519e2ed6820eea6e8741a3d2102feb3550))
+
 ## [2.2.1](https://github.com/riskalyze/deployment-actions/compare/v2.2.0...v2.2.1) (2022-06-10)
 
 
