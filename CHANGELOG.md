@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.1](https://github.com/riskalyze/deployment-actions/compare/v2.2.0...v2.2.1) (2022-06-10)
+
+
+### Bug Fixes
+
+* Add output to ecr-build-push context.sh ([0c1cca6](https://github.com/riskalyze/deployment-actions/commit/0c1cca66fb3bd3d3f0efeb472d2c060648610ba4))
+
 ## [2.2.0](https://github.com/riskalyze/deployment-actions/compare/v2.1.1...v2.2.0) (2022-06-10)
 
 
