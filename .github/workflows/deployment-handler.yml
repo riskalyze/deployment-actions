@@ -9,7 +9,7 @@ on:
       cdk-role-arn:
         required: false
         type: string
-      codeartifact-domain:
+      codeartifact-domain: # TODO: (Breaking change) Remove all codeartifact inputs except codeartifact-domain-owner and codeartifact-role-arn and just use defaults instead
         required: false
         type: string
       codeartifact-domain-owner:
@@ -96,7 +96,7 @@ jobs:
       id: cdk-deploy
       with:
         codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
-        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn || inputs.ecr-role-arn }}
+        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn || inputs.ecr-role-arn }} # TODO: Remove this fallback when all workflows are updated to pass in codeartifact-role-arn
         env-vars: ACCOUNT_NAME=${{ inputs.deployment-target-name }},NAMESPACE=${{ inputs.namespace }}
         environment: ${{ inputs.environment }}
         cdk-region: ${{ inputs.region }}
