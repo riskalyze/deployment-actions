@@ -1,0 +1,38 @@
+name: Shared account login action
+description: Logs in to Shared account resources (CodeArtifact, ECR)
+
+inputs:
+  shared-account-id:
+    description: The shared account ID.
+    required: true
+  role-arn:
+    description: A role to assume for authenticating with shared resources.
+    required: true
+
+outputs:
+  npmrc-path:
+    description: The path to the .npmrc that was created
+    value: ${{ steps.codeartifact.outputs.npmrc-path }}
+
+runs:
+  using: "composite"
+  steps:
+  - name: Assume role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.region }}
+      role-to-assume: ${{ inputs.role-arn }}
+  - name: Authenticate with CodeArtifact
+    id: codeartifact
+    shell: bash
+    run: |
+      aws codeartifact login \
+        --tool npm \
+        --domain riskalyze \
+        --domain-owner ${{ inputs.shared-account-id }} \
+        --namespace rsk \
+        --repository npm
+      echo "::set-output name=npmrc-path::$HOME/.npmrc"
+  - name: Authenticate with ECR
+    id: ecr
+    uses: aws-actions/amazon-ecr-login@v1
