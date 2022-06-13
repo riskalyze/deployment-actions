@@ -31,19 +31,19 @@ fi
 tags=$(aws ecr list-images \
   --repository-name "$name" \
   --query "imageIds[?imageTag==\`$SHA\`].imageTag" \
-  --output text)
+  --output text || true)
 dev_tags=$(aws ecr list-images \
   --repository-name "$name" \
   --query "imageIds[?imageTag==\`$SHA\`].imageTag" \
-  --output text)
-if [[ $tags != '' ]]; then
+  --output text || true)
+if [[ "$tags" == "$SHA" ]]; then
   echo "Image with SHA $SHA already exists; no build is needed."
   echo "::set-output name=needs-build::false"
 else
   echo "Build is needed."
   echo "::set-output name=needs-build::true"
 fi
-if [[ $dev_tags != '' ]]; then
+if [[ "$dev_tags" == "$SHA" ]]; then
   echo "Dev image with SHA $SHA already exists; no build is needed."
   echo "::set-output name=needs-dev-build::false"
 else
