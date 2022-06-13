@@ -20,7 +20,7 @@ runs:
   - name: Assume role
     uses: aws-actions/configure-aws-credentials@v1
     with:
-      aws-region: ${{ inputs.region }}
+      aws-region: us-east-2
       role-to-assume: ${{ inputs.role-arn }}
   - name: Authenticate with CodeArtifact
     id: codeartifact
