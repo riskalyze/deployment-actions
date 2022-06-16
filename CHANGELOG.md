@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.0](https://github.com/riskalyze/deployment-actions/compare/v2.2.2...v2.3.0) (2022-06-13)
+
+
+### Features
+
+* Add "shared-login" action for Codeartifact+ECR logins ([ea1d6fc](https://github.com/riskalyze/deployment-actions/commit/ea1d6fcead86b444e29202770cd162e277257334))
+
+
+### Bug Fixes
+
+* Don't fail if ECR repo doesn't exist yet ([b6de42c](https://github.com/riskalyze/deployment-actions/commit/b6de42cb637b86738911479e122a48f179fca31c))
+
 ## [2.2.2](https://github.com/riskalyze/deployment-actions/compare/v2.2.1...v2.2.2) (2022-06-10)
 
 
