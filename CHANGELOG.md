@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/riskalyze/deployment-actions/compare/v2.3.1...v2.3.2) (2022-06-16)
+
+
+### Bug Fixes
+
+* Move codeartifact-npm-login to build-actions repo ([023e1b7](https://github.com/riskalyze/deployment-actions/commit/023e1b77b893acc142b1b34c1e46afd7458b5cf3))
+
 ## [2.3.1](https://github.com/riskalyze/deployment-actions/compare/v2.3.0...v2.3.1) (2022-06-16)
 
 
