@@ -107,20 +107,22 @@ jobs:
     needs:
     - helm-package
     permissions:
+      checks: read
       contents: read
       id-token: write
-      statuses: read
     runs-on: ubuntu-latest
     steps:
-    - uses: autotelic/action-wait-for-status-check@v1
+    - name: Wait for build to succeed
+      uses: fountainhead/action-wait-for-check@v1.0.0
       id: wait-for-build
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        statusName: build
+        checkName: build
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
         intervalSeconds: 30
         timeoutSeconds: 1800 # 30 minutes
     - uses: riskalyze/deployment-actions/eks-helm-deploy@v2
-      if: steps.wait-for-build.outputs.state == 'success'
+      if: steps.wait-for-build.outputs.conclusion == 'success'
       with:
         cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.deployment-target-name }}
@@ -133,7 +135,7 @@ jobs:
         task: ${{ inputs.task }}
         twingate-service-key: ${{ secrets.twingate-service-key }}
     - name: Fail deploy if build failed
-      if: steps.wait-for-status.outputs.state != 'success'
+      if: steps.wait-for-build.outputs.conclusion != 'success'
       run: exit 1
 
   update-deployment:
