@@ -133,7 +133,7 @@ jobs:
         task: ${{ inputs.task }}
         twingate-service-key: ${{ secrets.twingate-service-key }}
     - name: Fail deploy if build failed
-      if: steps.wait-for-status.outputs.state !== 'success'
+      if: steps.wait-for-status.outputs.state != 'success'
       run: exit 1
 
   update-deployment:
