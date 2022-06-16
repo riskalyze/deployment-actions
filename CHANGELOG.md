@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.1](https://github.com/riskalyze/deployment-actions/compare/v2.3.0...v2.3.1) (2022-06-16)
+
+
+### Bug Fixes
+
+* Move ecr-build-push to build-actions repo ([dd42d91](https://github.com/riskalyze/deployment-actions/commit/dd42d91857070d156498c04d9f782bdae63cd0dd))
+
 ## [2.3.0](https://github.com/riskalyze/deployment-actions/compare/v2.2.2...v2.3.0) (2022-06-13)
 
 
