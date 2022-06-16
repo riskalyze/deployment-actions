@@ -56,7 +56,7 @@ runs:
   - name: Login to Codeartifact
     if: inputs.codeartifact-role-arn != ''
     id: codeartifact-auth
-    uses: riskalyze/deployment-actions/codeartifact-npm-login@v2
+    uses: riskalyze/build-actions/codeartifact-npm-login@v1
     with:
       domain-owner: ${{ inputs.codeartifact-domain-owner }}
       role-arn: ${{ inputs.codeartifact-role-arn }}
