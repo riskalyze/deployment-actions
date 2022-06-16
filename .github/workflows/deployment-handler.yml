@@ -3,6 +3,14 @@ name: Deployment handler
 on:
   workflow_call:
     inputs:
+      build-step-name:
+        required: false
+        type: string
+        default: build
+      build-step-wait-timeout:
+        required: false
+        type: string
+        default: 1800 # 30 minutes
       cdk-config-path:
         required: false
         type: string
@@ -17,9 +25,6 @@ on:
         type: string
       deployment-target-name:
         required: true
-        type: string
-      dockerfile-path:
-        required: false
         type: string
       eks-role-arn:
         required: false
@@ -117,10 +122,10 @@ jobs:
       id: wait-for-build
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        checkName: build
+        checkName: ${{ inputs.build-step-name }}
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
         intervalSeconds: 30
-        timeoutSeconds: 1800 # 30 minutes
+        timeoutSeconds: ${{ inputs.build-step-wait-timeout }}
     - uses: riskalyze/deployment-actions/eks-helm-deploy@v2
       if: steps.wait-for-build.outputs.conclusion == 'success'
       with:
