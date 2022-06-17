@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/riskalyze/deployment-actions/compare/v2.3.2...v3.0.0) (2022-06-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deployment-handler:** Several inputs for deployment-handler have been refactored and should be updated in any calling workflows. This change also requires that the service define a "build" job that builds and pushes its Dockerfile if using EKS deployments.
+
+### Code Refactoring
+
+* **deployment-handler:** Move ecr-build-push out of deployment-handler ([bb2a078](https://github.com/riskalyze/deployment-actions/commit/bb2a078f56e9d34046d149e00c19bc7321600d8d))
+
 ## [2.3.2](https://github.com/riskalyze/deployment-actions/compare/v2.3.1...v2.3.2) (2022-06-16)
 
 
