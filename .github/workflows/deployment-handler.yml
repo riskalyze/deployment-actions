@@ -3,28 +3,18 @@ name: Deployment handler
 on:
   workflow_call:
     inputs:
+      build-step-name:
+        required: false
+        type: string
+        default: build
+      build-step-wait-timeout:
+        required: false
+        type: string
+        default: 1800 # 30 minutes
       cdk-config-path:
         required: false
         type: string
       cdk-role-arn:
-        required: false
-        type: string
-      codeartifact-domain: # TODO: (Breaking change) Remove all codeartifact inputs except codeartifact-domain-owner and codeartifact-role-arn and just use defaults instead
-        required: false
-        type: string
-      codeartifact-domain-owner:
-        required: false
-        type: string
-      codeartifact-namespace:
-        required: false
-        type: string
-      codeartifact-region:
-        required: false
-        type: string
-      codeartifact-repository:
-        required: false
-        type: string
-      codeartifact-role-arn:
         required: false
         type: string
       cluster:
@@ -35,18 +25,6 @@ on:
         type: string
       deployment-target-name:
         required: true
-        type: string
-      dockerfile-path:
-        required: false
-        type: string
-      ecr-account-id:
-        required: false
-        type: string
-      ecr-region:
-        required: false
-        type: string
-      ecr-role-arn:
-        required: false
         type: string
       eks-role-arn:
         required: false
@@ -69,6 +47,15 @@ on:
       region:
         required: true
         type: string
+      shared-account-id:
+        required: false
+        type: string
+      shared-region:
+        required: false
+        type: string
+      shared-role-arn:
+        required: false
+        type: string
       stacks:
         required: false
         type: string
@@ -76,10 +63,6 @@ on:
         required: true
         type: string
     secrets:
-      ecr-lifecycle-policy:
-        required: false
-      ecr-repo-policy:
-        required: false
       twingate-service-key:
         required: false
 
@@ -95,32 +78,14 @@ jobs:
     - uses: riskalyze/deployment-actions/cdk-deploy@v2
       id: cdk-deploy
       with:
-        codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
-        codeartifact-role-arn: ${{ inputs.codeartifact-role-arn || inputs.ecr-role-arn }} # TODO: Remove this fallback when all workflows are updated to pass in codeartifact-role-arn
+        codeartifact-domain-owner: ${{ inputs.shared-account-id }}
+        codeartifact-role-arn: ${{ inputs.shared-role-arn }}
         env-vars: ACCOUNT_NAME=${{ inputs.deployment-target-name }},NAMESPACE=${{ inputs.namespace }}
         environment: ${{ inputs.environment }}
         cdk-region: ${{ inputs.region }}
         cdk-role-arn: ${{ inputs.cdk-role-arn }}
         path: ${{ inputs.cdk-config-path }}
         task: ${{ inputs.task }}
-
-  ecr-build-push:
-    if: inputs.dockerfile-path != '' && inputs.task == 'deploy'
-    concurrency: ${{ github.sha }}
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: riskalyze/build-actions/ecr-build-push@v1
-        with:
-          codeartifact-domain-owner: ${{ inputs.codeartifact-domain-owner }}
-          codeartifact-role-arn: ${{ inputs.codeartifact-role-arn || inputs.ecr-role-arn }}
-          ecr-region: ${{ inputs.ecr-region }}
-          ecr-lifecycle-policy: ${{ secrets.ecr-lifecycle-policy }}
-          ecr-repo-policy: ${{ secrets.ecr-repo-policy }}
-          ecr-role-arn: ${{ inputs.ecr-role-arn }}
-          path: ${{ inputs.dockerfile-path }}
 
   helm-package:
     if: inputs.helm-chart-path != '' && inputs.task == 'deploy'
@@ -131,9 +96,9 @@ jobs:
     steps:
     - uses: riskalyze/deployment-actions/helm-package@v2
       with:
-        ecr-account-id: ${{ inputs.ecr-account-id }}
-        ecr-region: ${{ inputs.ecr-region }}
-        ecr-role-arn: ${{ inputs.ecr-role-arn }}
+        ecr-account-id: ${{ inputs.shared-account-id }}
+        ecr-region: ${{ inputs.shared-region || 'us-east-2' }}
+        ecr-role-arn: ${{ inputs.shared-role-arn }}
         path: ${{ inputs.helm-chart-path }}
 
   eks-helm-deploy:
@@ -142,18 +107,27 @@ jobs:
     if: |
       always() &&
       inputs.helm-chart-path != '' &&
-      (needs.ecr-build-push.result == 'success' || needs.ecr-build-push.result == 'skipped') &&
       (needs.helm-package.result == 'success' || needs.helm-package.result == 'skipped')
     concurrency: eks-helm-${{ inputs.environment }}
     needs:
-    - ecr-build-push
     - helm-package
     permissions:
+      checks: read
       contents: read
       id-token: write
     runs-on: ubuntu-latest
     steps:
+    - name: Wait for build to succeed
+      uses: fountainhead/action-wait-for-check@v1.0.0
+      id: wait-for-build
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        checkName: ${{ inputs.build-step-name }}
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        intervalSeconds: 30
+        timeoutSeconds: ${{ inputs.build-step-wait-timeout }}
     - uses: riskalyze/deployment-actions/eks-helm-deploy@v2
+      if: steps.wait-for-build.outputs.conclusion == 'success'
       with:
         cluster: ${{ inputs.cluster }}
         environment: ${{ inputs.deployment-target-name }}
@@ -165,6 +139,9 @@ jobs:
         role-arn: ${{ inputs.eks-role-arn }}
         task: ${{ inputs.task }}
         twingate-service-key: ${{ secrets.twingate-service-key }}
+    - name: Fail deploy if build failed
+      if: steps.wait-for-build.outputs.conclusion != 'success'
+      run: exit 1
 
   update-deployment:
     needs:
