@@ -18,6 +18,9 @@ inputs:
   task:
     description: The task to perform, i.e. "apply" or "destroy".
     required: true
+  terraform-api-token:
+    description: The Terraform Cloud API Token.
+    required: true
   terraform-version:
     description: The version of Terraform to use.
     required: false
@@ -32,6 +35,7 @@ runs:
   - name: Setup Terraform
     uses: hashicorp/setup-terraform@v1
     with:
+      cli_config_credentials_token: ${{ inputs.terraform-api-token }}
       terraform_version: ${{ inputs.terraform-version }}
   - name: Assume AWS role
     uses: aws-actions/configure-aws-credentials@v1
