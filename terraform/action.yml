@@ -1,0 +1,59 @@
+name: Terraform action
+description: Deploys or destroys AWS infrastructure using Terraform
+
+inputs:
+  region:
+    description: The AWS region to deploy into.
+    required: true
+  role-arn:
+    description: An AWS role ARN that will be assumed for Terraform operations.
+    required: true
+  environment:
+    description: The environment to deploy into, i.e. "production".
+    required: true
+  path:
+    description: The path to the Terraform configuration (i.e. main.tf).
+    required: false
+    default: .
+  task:
+    description: The task to perform, i.e. "apply" or "destroy".
+    required: true
+  terraform-version:
+    description: The version of Terraform to use.
+    required: false
+    default: 1.2.4
+
+runs:
+  using: "composite"
+  steps:
+  - uses: actions/checkout@v3
+  - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
+    shell: bash
+  - name: Setup Terraform
+    uses: hashicorp/setup-terraform@v1
+    with:
+      terraform_version: ${{ inputs.terraform-version }}
+  - name: Assume AWS role
+    uses: aws-actions/configure-aws-credentials@v1
+    with:
+      aws-region: ${{ inputs.region }}
+      role-to-assume: ${{ inputs.role-arn }}
+  - name: Download plan
+    if: inputs.task == 'apply'
+    uses: actions/download-artifact@v3
+    with:
+      name: plan.out
+  - name: Terraform ${{ inputs.task }}
+    id: terraform
+    run: terraform.sh
+    working-directory: ${{ inputs.path }}
+    env:
+      ENVIRONMENT: ${{ inputs.environment }}
+      TASK: ${{ inputs.task }}
+    shell: bash
+  - name: Upload artifact
+    uses: actions/upload-artifact@v3
+    if: inputs.task == 'plan'
+    with:
+      name: plan.out
+      path: ${{ inputs.path }}/plan.out
