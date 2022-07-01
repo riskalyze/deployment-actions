@@ -42,7 +42,7 @@ runs:
     if: inputs.task == 'apply'
     uses: actions/download-artifact@v3
     with:
-      name: plan.out
+      name: tfplan
   - name: Terraform ${{ inputs.task }}
     id: terraform
     run: terraform.sh
@@ -55,5 +55,5 @@ runs:
     uses: actions/upload-artifact@v3
     if: inputs.task == 'plan'
     with:
-      name: plan.out
-      path: ${{ inputs.path }}/plan.out
+      name: tfplan
+      path: ${{ inputs.path }}/tfplan
