@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
+echo "Selecting workspace ${REPO/*\//}-${ENVIRONMENT}."
+terraform workspace select ${REPO/*\//}-${ENVIRONMENT}
+
+echo "Running terraform init..."
+terraform init
+
 if [ "$TASK" == "apply" ]; then
   echo "Running terraform apply..."
   terraform apply -var-file=$ENVIRONMENT.tfvars -auto-approve -input=false

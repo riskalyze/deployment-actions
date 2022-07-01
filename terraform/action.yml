@@ -53,6 +53,7 @@ runs:
     working-directory: ${{ inputs.path }}
     env:
       ENVIRONMENT: ${{ inputs.environment }}
+      REPO: ${{ github.repository }}
       TASK: ${{ inputs.task }}
     shell: bash
   - name: Upload artifact
