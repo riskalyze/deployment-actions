@@ -77,6 +77,7 @@ runs:
       EVENT_TYPE: ${{ inputs.event-type }}
       EXTRA_VALUES: ${{ inputs.extra-values }}
       NAMESPACE: ${{ inputs.namespace }}
+      REF: ${{ github.ref }}
       TAG: ${{ github.sha }}
       TASK: ${{ inputs.task }}
     shell: bash
