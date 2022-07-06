@@ -12,6 +12,11 @@ terraform init \
 echo "Selecting workspace ${WORKSPACE}."
 terraform workspace select ${WORKSPACE}
 
+if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
+  echo "Found SOPS-encrypted tfvars; decrypting."
+  sops -i -d "$ENVIRONMENT.secret.tfvars"
+fi
+
 if [ "$TASK" == "apply" ]; then
   echo "Running terraform apply..."
   terraform apply -var-file=$ENVIRONMENT.tfvars -auto-approve -input=false
