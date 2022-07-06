@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
-echo "Selecting workspace ${REPO/*\//}-${ENVIRONMENT}."
-terraform workspace select ${REPO/*\//}-${ENVIRONMENT}
-
 echo "Running terraform init..."
 terraform init
+
+echo "Selecting workspace ${REPO/*\//}-${ENVIRONMENT}."
+terraform workspace select ${REPO/*\//}-${ENVIRONMENT}
 
 if [ "$TASK" == "apply" ]; then
   echo "Running terraform apply..."
