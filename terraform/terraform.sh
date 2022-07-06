@@ -21,15 +21,15 @@ if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
 fi
 
 if [ "$TASK" == "apply" ]; then
-  args+=("apply" "-auto-approve" "tfplan")
+  args=("apply" "${args[@]}" "-auto-approve" "tfplan")
 elif [ "$TASK" == "plan" ]; then
-  args+=("plan" "-out=tfplan")
+  args=("plan" "-out=tfplan" "${args[@]}")
 elif [ "$TASK" == "destroy" ]; then
   if [[ "$ENVIRONMENT" =~ ^prod ]]; then
     echo "ERROR! Cannot destroy a production environment!!"
     exit 1
   else
-    args+=("apply" "-destroy" "-auto-approve" "-lock-timeout=30s")
+    args=("apply" "-destroy" "${args[@]}" "-auto-approve" "-lock-timeout=30s")
   fi
 else
   echo "ERROR! Unrecognized action $TASK."
