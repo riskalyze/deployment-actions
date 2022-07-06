@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -ueo pipefail
 
+cd ${WORKDIR} || exit 1
+
 echo "Running terraform init..."
 terraform init \
   -backend-config="bucket=infra-tf-state-${ENVIRONMENT}-${REGION}.riskalyze.com" \
