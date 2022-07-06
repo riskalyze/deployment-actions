@@ -19,7 +19,7 @@ inputs:
     description: An AWS role ARN that will be assumed for Terraform operations.
     required: true
   task:
-    description: The task to perform, i.e. "apply" or "destroy".
+    description: The task to perform. Valid inputs are "plan", "plan-destroy", "apply", and "destroy".
     required: true
   terraform-version:
     description: The version of Terraform to use.
@@ -47,7 +47,7 @@ runs:
       aws-region: ${{ inputs.region }}
       role-to-assume: ${{ inputs.role-arn }}
   - name: Download plan
-    if: inputs.task == 'apply'
+    if: inputs.task == 'apply' || inputs.task == 'destroy'
     uses: actions/download-artifact@v3
     with:
       name: tfplan
@@ -69,7 +69,7 @@ runs:
     shell: bash
   - name: Upload artifact
     uses: actions/upload-artifact@v3
-    if: inputs.task == 'plan'
+    if: inputs.task == 'plan' || inputs.task == 'plan-destroy'
     with:
       name: tfplan
       path: ${{ inputs.path }}/tfplan

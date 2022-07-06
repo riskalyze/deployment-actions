@@ -12,29 +12,32 @@ terraform init \
 echo "Selecting workspace ${WORKSPACE}."
 terraform workspace select "${WORKSPACE}"
 
-args=("-input=false" "-var-file=$ENVIRONMENT.tfvars" )
-
-if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
-  echo "Found SOPS-encrypted tfvars; decrypting."
-  sops -i -d "$ENVIRONMENT.secret.tfvars"
-  args+=("-var-file=$ENVIRONMENT.secret.tfvars")
-fi
-
-if [ "$TASK" == "apply" ]; then
-  args=("apply" "${args[@]}" "-auto-approve" "tfplan")
-elif [ "$TASK" == "plan" ]; then
-  args=("plan" "-out=tfplan" "${args[@]}")
-elif [ "$TASK" == "destroy" ]; then
-  if [[ "$ENVIRONMENT" =~ ^prod ]]; then
-    echo "ERROR! Cannot destroy a production environment!!"
+case $TASK in
+  apply)
+    args=("apply" "-input=false" "-auto-approve" "tfplan")
+    ;;
+  plan | plan-destroy)
+    args=("plan" "-out=tfplan" "-input=false" "-var-file=$ENVIRONMENT.tfvars")
+    if [ "$TASK" == "plan-destroy" ]; then
+      args+=("-destroy")
+    fi
+    if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
+      echo "Found SOPS-encrypted tfvars; decrypting."
+      sops -i -d "$ENVIRONMENT.secret.tfvars"
+      args+=("-var-file=$ENVIRONMENT.secret.tfvars")
+    fi
+    ;;
+  destroy)
+    if [[ "$ENVIRONMENT" =~ ^prod ]]; then
+      echo "ERROR! Cannot destroy a production environment!!"
+      exit 1
+    fi
+    args=("apply" "-destroy" "-input=false" "-auto-approve" "-lock-timeout=30s" "tfplan")
+    ;;
+  *)
+    echo "Unknown task $TASK!"
     exit 1
-  else
-    args=("apply" "-destroy" "${args[@]}" "-auto-approve" "-lock-timeout=30s")
-  fi
-else
-  echo "ERROR! Unrecognized action $TASK."
-  exit 1
-fi
+esac
 
 echo Running terraform "${args[@]}"
 terraform "${args[@]}"
