@@ -12,25 +12,29 @@ terraform init \
 echo "Selecting workspace ${WORKSPACE}."
 terraform workspace select ${WORKSPACE}
 
+args=("-var-file=$ENVIRONMENT.tfvars" "-input=false")
+
 if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
   echo "Found SOPS-encrypted tfvars; decrypting."
   sops -i -d "$ENVIRONMENT.secret.tfvars"
+  args+=("-var-file=$ENVIRONMENT.secret.tfvars")
 fi
 
 if [ "$TASK" == "apply" ]; then
-  echo "Running terraform apply..."
-  terraform apply -var-file=$ENVIRONMENT.tfvars -auto-approve -input=false
+  args+=("apply" "-auto-approve" "tfplan")
 elif [ "$TASK" == "plan" ]; then
-  echo "Running terraform plan..."
-  terraform plan -no-color -input=false -var-file=$ENVIRONMENT.tfvars -out=tfplan
+  args+=("plan" "-out=tfplan")
 elif [ "$TASK" == "destroy" ]; then
   if [[ "$ENVIRONMENT" =~ ^prod ]]; then
     echo "ERROR! Cannot destroy a production environment!!"
     exit 1
   else
-    echo "Running terraform destroy..."
-    terraform apply -destroy -var-file=$ENVIRONMENT.tfvars -auto-approve -input=false -lock-timeout=30s tfplan
+    args+=("apply" "-destroy" "-auto-approve" "-lock-timeout=30s")
   fi
 else
   echo "ERROR! Unrecognized action $TASK."
+  exit 1
 fi
+
+echo "Running terraform ${args[@]}..."
+terraform "${args[@]}"
