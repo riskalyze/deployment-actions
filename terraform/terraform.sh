@@ -12,7 +12,7 @@ terraform init \
 echo "Selecting workspace ${WORKSPACE}."
 terraform workspace select ${WORKSPACE}
 
-args=("-var-file=$ENVIRONMENT.tfvars" "-input=false")
+args=("-input=false" "-var-file=$ENVIRONMENT.tfvars" )
 
 if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
   echo "Found SOPS-encrypted tfvars; decrypting."
