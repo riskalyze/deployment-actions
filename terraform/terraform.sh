@@ -2,7 +2,12 @@
 set -ueo pipefail
 
 echo "Running terraform init..."
-terraform init
+terraform init \
+  -backend-config="bucket=infra-tf-state-${ENVIRONMENT}-${REGION}.riskalyze.com" \
+  -backend-config="region=${REGION}" \
+  -backend-config="dynamodb_table=tf-remote-state-lock" \
+  -backend-config="key=terraform.tfstate" \
+  -backend-config="encrypt=true"
 
 echo "Selecting workspace ${REPO/*\//}-${ENVIRONMENT}."
 terraform workspace select ${REPO/*\//}-${ENVIRONMENT}
