@@ -9,8 +9,8 @@ terraform init \
   -backend-config="key=terraform.tfstate" \
   -backend-config="encrypt=true"
 
-echo "Selecting workspace ${REPO/*\//}-${ENVIRONMENT}."
-terraform workspace select ${REPO/*\//}-${ENVIRONMENT}
+echo "Selecting workspace ${WORKSPACE}."
+terraform workspace select ${WORKSPACE}
 
 if [ "$TASK" == "apply" ]; then
   echo "Running terraform apply..."

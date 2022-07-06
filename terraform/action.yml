@@ -25,6 +25,9 @@ inputs:
     description: The version of Terraform to use.
     required: false
     default: 1.2.4
+  workspace:
+    description: The Terraform workspace to use.
+    required: true
 
 runs:
   using: "composite"
@@ -59,6 +62,7 @@ runs:
       REGION: ${{ inputs.region }}
       REPO: ${{ github.repository }}
       TASK: ${{ inputs.task }}
+      WORKSPACE: ${{ inputs.workspace }}
     shell: bash
   - name: Upload artifact
     uses: actions/upload-artifact@v3
