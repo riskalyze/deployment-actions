@@ -2,24 +2,24 @@ name: Terraform action
 description: Deploys or destroys AWS infrastructure using Terraform
 
 inputs:
+  environment:
+    description: The environment to deploy into, i.e. "production".
+    required: true
+  github-ssh-key:
+    description: An SSH private key with access to clone private module repos.
+    required: true
+  path:
+    description: The path to the Terraform configuration (i.e. main.tf).
+    required: false
+    default: .
   region:
     description: The AWS region to deploy into.
     required: true
   role-arn:
     description: An AWS role ARN that will be assumed for Terraform operations.
     required: true
-  environment:
-    description: The environment to deploy into, i.e. "production".
-    required: true
-  path:
-    description: The path to the Terraform configuration (i.e. main.tf).
-    required: false
-    default: .
   task:
     description: The task to perform, i.e. "apply" or "destroy".
-    required: true
-  terraform-api-token:
-    description: The Terraform Cloud API Token.
     required: true
   terraform-version:
     description: The version of Terraform to use.
@@ -36,7 +36,6 @@ runs:
     uses: hashicorp/setup-terraform@v1
     with:
       cli_config_credentials_token: ${{ inputs.terraform-api-token }}
-      terraform_version: ${{ inputs.terraform-version }}
   - name: Assume AWS role
     uses: aws-actions/configure-aws-credentials@v1
     with:
@@ -53,6 +52,10 @@ runs:
     working-directory: ${{ inputs.path }}
     env:
       ENVIRONMENT: ${{ inputs.environment }}
+      GIT_SSH_COMMAND: "echo '${{ inputs.github-ssh-key }}' > id_rsa
+              && ssh-keyscan github.com > known_hosts
+              && chmod 600 id_rsa known_hosts
+              && ssh -i ./id_rsa -o UserKnownHostsFile=./known_hosts"
       REPO: ${{ github.repository }}
       TASK: ${{ inputs.task }}
     shell: bash
