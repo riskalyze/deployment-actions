@@ -10,7 +10,7 @@ terraform init \
   -backend-config="encrypt=true"
 
 echo "Selecting workspace ${WORKSPACE}."
-terraform workspace select ${WORKSPACE}
+terraform workspace select "${WORKSPACE}"
 
 args=("-input=false" "-var-file=$ENVIRONMENT.tfvars" )
 
@@ -36,5 +36,5 @@ else
   exit 1
 fi
 
-echo "Running terraform ${args[@]}..."
+echo Running terraform "${args[@]}"
 terraform "${args[@]}"
