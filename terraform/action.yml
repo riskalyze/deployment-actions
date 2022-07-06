@@ -51,7 +51,7 @@ runs:
     uses: actions/download-artifact@v3
     with:
       name: tfplan
-      path: ${{ inputs.path }}/tfplan
+      path: ${{ inputs.path }}
   - name: Terraform ${{ inputs.task }}
     id: terraform
     run: terraform.sh
