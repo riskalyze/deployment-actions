@@ -52,6 +52,7 @@ runs:
   - name: Terraform ${{ inputs.task }}
     id: terraform
     run: terraform.sh
+    working-directory: ${{ inputs.path }}
     env:
       ENVIRONMENT: ${{ inputs.environment }}
       GIT_SSH_COMMAND: "echo '${{ inputs.github-ssh-key }}' > id_rsa
@@ -61,7 +62,6 @@ runs:
       REGION: ${{ inputs.region }}
       REPO: ${{ github.repository }}
       TASK: ${{ inputs.task }}
-      WORKDIR: ${{ inputs.path }}
       WORKSPACE: ${{ inputs.workspace }}
     shell: bash
   - name: Upload artifact
