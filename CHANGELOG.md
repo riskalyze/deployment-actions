@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.1.0](https://github.com/riskalyze/deployment-actions/compare/v3.0.0...v3.1.0) (2022-07-05)
+
+
+### Features
+
+* Add terraform action ([438038b](https://github.com/riskalyze/deployment-actions/commit/438038b06d1940175f0bde0c1eba826997d6081e))
+
+
+### Bug Fixes
+
+* **eks-helm-deploy:** Include ref in helm values ([f38b906](https://github.com/riskalyze/deployment-actions/commit/f38b906efa1a8fdc6ef2aeb4b35c057187c8b135))
+
 ## [3.0.0](https://github.com/riskalyze/deployment-actions/compare/v2.3.2...v3.0.0) (2022-06-17)
 
 
