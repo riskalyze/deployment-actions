@@ -24,13 +24,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Add GH_SSH_KEY
-      shell: bash
-      run: |
-        ssh-agent -a /tmp/ssh_agent.sock
-        mkdir -p ~/.ssh
-        echo "${{ inputs.github-ssh-key }}" | tr -d '\r' | ssh-add -
-        ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ inputs.github-ssh-key }}
     - name: Setup Infracost
       uses: infracost/actions/setup@v2
       with:
@@ -55,7 +51,6 @@ runs:
     - name: Generate Infracost cost estimate baseline
       shell: bash
       env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         TF_ROOT: ${{ inputs.workspace }}
       run: |
         args=("breakdown"
@@ -74,7 +69,6 @@ runs:
     - name: Generate Infracost diff
       shell: bash
       env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         TF_ROOT: ${{ inputs.workspace }}
       run: |
         args=("diff"
