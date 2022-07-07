@@ -6,17 +6,13 @@ inputs:
     description: Whether to add a comment to the PR with the results of the Terraform action. Only valid when this workflow is invoked from a PR event.
     required: false
   environment:
-    description: The environment to deploy into, i.e. "production".
+    description: The environment to use, i.e. "production".
     required: true
   github-ssh-key:
     description: An SSH private key with access to clone private module repos.
     required: true
-  path:
-    description: The path to the Terraform configuration (i.e. main.tf).
-    required: false
-    default: .
   region:
-    description: The AWS region to deploy into.
+    description: The AWS region to use.
     required: true
   role-arn:
     description: An AWS role ARN that will be assumed for Terraform operations.
@@ -62,11 +58,11 @@ runs:
     uses: actions/download-artifact@v3
     with:
       name: tfplan
-      path: ${{ inputs.path }}
+      path: ${{ inputs.workspace }}
   - name: Terraform ${{ inputs.task }}
     id: terraform
     run: terraform.sh
-    working-directory: ${{ inputs.path }}
+    working-directory: ${{ inputs.workspace }}
     env:
       ENVIRONMENT: ${{ inputs.environment }}
       GIT_SSH_COMMAND: "echo '${{ inputs.github-ssh-key }}' > id_rsa
@@ -80,17 +76,24 @@ runs:
     shell: bash
   - name: Post plan to PR comment
     if: always() && inputs.comment-on-pr != '' && (steps.terraform.outcome == 'success' || steps.terraform.outcome == 'failure')
-    uses: robburger/terraform-pr-commenter@v1
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
-      TF_WORKSPACE: ${{ inputs.environment }}-${{ inputs.workspace }}
+    uses: mshick/add-pr-comment@v1
     with:
-      commenter_type: plan
-      commenter_input: ${{ format('{0}{1}', steps.terraform.outputs.stdout, steps.terraform.stderr) }}
-      commenter_exitcode: ${{ steps.terraform.outputs.exitcode }}
+      message: |
+        ## ${{ inputs.environment }} ${{ inputs.workspace }} Terraform Plan ${{ steps.terraform.outcome }}
+
+        <details><summary>Show Plan</summary>
+
+        ```
+        ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
+        ```
+
+        </details>
+        *Pushed by: @${{ github.actor }}, Action: `${{ github.event_name }}`*
+      repo-token: ${{ github.token }}
+      repo-token-user-login: 'github-actions[bot]'
   - name: Upload artifact
     uses: actions/upload-artifact@v3
     if: inputs.task == 'plan' || inputs.task == 'plan-destroy'
     with:
       name: tfplan
-      path: ${{ inputs.path }}/tfplan
+      path: ${{ inputs.workspace }}/tfplan
