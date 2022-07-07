@@ -82,7 +82,7 @@ runs:
     if: always() && inputs.comment-on-pr != '' && (steps.terraform.outcome == 'success' || steps.terraform.outcome == 'failure')
     uses: robburger/terraform-pr-commenter@v1
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: plan
       commenter_input: ${{ format('{0}{1}', steps.terraform.outputs.stdout, steps.terraform.stderr) }}
