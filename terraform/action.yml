@@ -74,6 +74,24 @@ runs:
       TASK: ${{ inputs.task }}
       WORKSPACE: ${{ inputs.workspace }}
     shell: bash
+  - name: Parse terraform outputs
+    id: parse-outputs
+    if: always() && inputs.comment-on-pr != ''
+    shell: bash
+    run: |
+      planExitCode=${{ steps.terraform.outputs.exitcode }}
+      planHasChanges=false
+      if [ ${planExitCode} -eq 0 ]; then
+        echo ::set-output name=has_changes::${planHasChanges}
+      fi
+
+      if [ ${planExitCode} -eq 2 ]; then
+        planExitCode=0
+        planHasChanges=true
+        echo ::set-output name=has_changes::${planHasChanges}
+      fi
+
+      echo ::set-output name=plan_summary::$(grep "Plan: " <<< ${{ steps.terraform.outputs.stdout }})  
   - name: Post plan to PR comment
     if: always() && inputs.comment-on-pr != '' && (steps.terraform.outcome == 'success' || steps.terraform.outcome == 'failure')
     uses: marocchino/sticky-pull-request-comment@v2
@@ -83,9 +101,11 @@ runs:
       message: |
         ## Terraform plan ${{ steps.terraform.outcome }} for `${{ inputs.environment }}` workspace `${{ inputs.workspace }}`
 
+        `${{ steps.parse-outputs.output.plan_summary }}`
+
         <details><summary>Show Plan</summary>
 
-        ```
+        ```hcl
         ${{ steps.terraform.outputs.stdout || steps.terraform.outputs.stderr }}
         ```
 
