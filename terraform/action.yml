@@ -2,6 +2,9 @@ name: Terraform action
 description: Deploys or destroys AWS infrastructure using Terraform
 
 inputs:
+  comment-on-pr:
+    description: Whether to add a comment to the PR with the results of the Terraform action. Only valid when this workflow is invoked from a PR event.
+    required: false
   environment:
     description: The environment to deploy into, i.e. "production".
     required: true
@@ -25,6 +28,9 @@ inputs:
     description: The version of Terraform to use.
     required: false
     default: 1.2.4
+  twingate-service-key:
+    description: A Twingate service key that will be used to connect to Twingate.
+    required: false
   workspace:
     description: The Terraform workspace to use.
     required: true
@@ -46,6 +52,11 @@ runs:
     with:
       aws-region: ${{ inputs.region }}
       role-to-assume: ${{ inputs.role-arn }}
+  - name: Connect to Twingate
+    uses: twingate/github-action@v1
+    if: inputs.twingate-service-key != ''
+    with:
+      service-key: ${{ inputs.twingate-service-key }}
   - name: Download plan
     if: inputs.task == 'apply' || inputs.task == 'destroy'
     uses: actions/download-artifact@v3
@@ -67,6 +78,15 @@ runs:
       TASK: ${{ inputs.task }}
       WORKSPACE: ${{ inputs.workspace }}
     shell: bash
+  - name: Post plan to PR comment
+    if: always() && inputs.comment-on-pr != '' && (steps.terraform.outcome == 'success' || steps.terraform.outcome == 'failure')
+    uses: robburger/terraform-pr-commenter@v1
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      commenter_type: plan
+      commenter_input: ${{ format('{0}{1}', steps.terraform.outputs.stdout, steps.terraform.stderr) }}
+      commenter_exitcode: ${{ steps.terraform.outputs.exitcode }}
   - name: Upload artifact
     uses: actions/upload-artifact@v3
     if: inputs.task == 'plan' || inputs.task == 'plan-destroy'
