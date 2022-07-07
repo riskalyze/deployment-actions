@@ -1,0 +1,97 @@
+name: Infracost action
+description: Cloud cost estimate for Terraform resource changes
+
+inputs:
+  environment:
+    description: The environment to use, i.e. "production".
+    required: true
+  github-ssh-key:
+    description: An SSH private key with access to clone private module repos.
+    required: true
+  region:
+    description: The AWS region to use.
+    required: true
+  role-arn:
+    description: An AWS role ARN that will be assumed for operations.
+    required: true
+  workspace:
+    description: The Terraform workspace to use.
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Add GH_SSH_KEY
+      shell: bash
+      run: |
+        ssh-agent -a /tmp/ssh_agent.sock
+        mkdir -p ~/.ssh
+        echo "${{ inputs.github-ssh-key }}" | tr -d '\r' | ssh-add -
+        ssh-keyscan github.com >> ~/.ssh/known_hosts
+    - name: Setup Infracost
+      uses: infracost/actions/setup@v2
+      with:
+        api-key: ${{ secrets.INFRACOST_API_KEY }}
+    - name: Assume AWS role
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{ inputs.region }}
+        role-to-assume: ${{ inputs.role-arn }}
+    - name: Setup SOPS
+      uses: mdgreenwald/mozilla-sops-action@v1.2.0
+    - name: Checkout base branch
+      uses: actions/checkout@v2
+      with:
+        ref: '${{ github.event.pull_request.base.ref }}'
+    - name: Decrypt sops secrets
+      shell: bash
+      run: |
+        if [ -f "${{ inputs.environment }}.secret.tfvars" ]; then
+          sops -i -d "${{ inputs.environment }}.secret.tfvars"
+        fi
+    - name: Generate Infracost cost estimate baseline
+      shell: bash
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        TF_ROOT: ${{ inputs.workspace }}
+      run: |
+        args=("breakdown"
+          "--path=${TF_ROOT}"
+          "--project-name=${{ inputs.environment }}-${{ inputs.workspace }}"
+          "--format=json"
+          "--out-file=/tmp/infracost-base.json"
+          "--terraform-var-file=${{ inputs.environment }}.tfvars"
+        )
+        test -f "${{ inputs.environment }}.secret.tfvars" && args+=("--terraform-var-file=${{ inputs.environment }}.secret.tfvars")
+
+        echo "Running infracost ${args[@]}"
+        infracost "${args[@]}"
+    - name: Checkout PR branch
+      uses: actions/checkout@v2
+    - name: Generate Infracost diff
+      shell: bash
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        TF_ROOT: ${{ inputs.workspace }}
+      run: |
+        args=("diff"
+          "--path=${TF_ROOT}"
+          "--project-name=${{ inputs.environment }}-${{ inputs.workspace }}"
+          "--format=json"
+          "--compare-to=/tmp/infracost-base.json"
+          "--out-file=/tmp/infracost.json"
+          "--terraform-var-file=${{ inputs.environment }}.tfvars"
+        )
+        test -f "${{ inputs.environment }}.secret.tfvars" && args+=("--terraform-var-file=${{ inputs.environment }}.secret.tfvars")
+        echo "Running infracost ${args[@]}"
+        infracost "${args[@]}"
+    - name: Post Infracost comment
+      shell: bash
+      run: |
+        infracost comment github --path=/tmp/infracost.json \
+                                 --repo=$GITHUB_REPOSITORY \
+                                 --github-token=${{github.token}} \
+                                 --pull-request=${{github.event.pull_request.number}} \
+                                 --behavior=update \
+                                 --tag=infracost-${{ inputs.environment }}-${{ inputs.workspace }}
+
