@@ -76,8 +76,10 @@ runs:
     shell: bash
   - name: Post plan to PR comment
     if: always() && inputs.comment-on-pr != '' && (steps.terraform.outcome == 'success' || steps.terraform.outcome == 'failure')
-    uses: mshick/add-pr-comment@v1
+    uses: marocchino/sticky-pull-request-comment@v2
     with:
+      header: ${{ inputs.environment }}-${{ inputs.workspace }}
+      recreate: true
       message: |
         ## Terraform plan ${{ steps.terraform.outcome }} for `${{ inputs.environment }}` workspace `${{ inputs.workspace }}`
 
@@ -90,8 +92,6 @@ runs:
         </details>
 
         *Pushed by: @${{ github.actor }}, Action: `${{ github.event_name }}`*
-      repo-token: ${{ github.token }}
-      repo-token-user-login: 'github-actions[bot]'
   - name: Upload artifact
     uses: actions/upload-artifact@v3
     if: inputs.task == 'plan' || inputs.task == 'plan-destroy'
