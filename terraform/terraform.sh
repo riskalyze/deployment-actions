@@ -14,10 +14,10 @@ terraform workspace select "${WORKSPACE}"
 
 case $TASK in
   apply)
-    args=("apply" "-input=false" "-auto-approve" "tfplan")
+    args=("apply" "-no-color" "-input=false" "-auto-approve" "tfplan")
     ;;
   plan | plan-destroy)
-    args=("plan" "-out=tfplan" "-input=false" "-var-file=$ENVIRONMENT.tfvars")
+    args=("plan" "-no-color" "-out=tfplan" "-input=false" "-var-file=$ENVIRONMENT.tfvars")
     if [ "$TASK" == "plan-destroy" ]; then
       args+=("-destroy")
     fi
