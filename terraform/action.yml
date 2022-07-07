@@ -79,7 +79,7 @@ runs:
     uses: mshick/add-pr-comment@v1
     with:
       message: |
-        ## ${{ inputs.environment }} ${{ inputs.workspace }} Terraform Plan ${{ steps.terraform.outcome }}
+        ## Terraform plan ${{ steps.terraform.outcome }} for ${{ inputs.environment }} ${{ inputs.workspace }} 
 
         <details><summary>Show Plan</summary>
 
