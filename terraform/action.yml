@@ -84,10 +84,11 @@ runs:
         <details><summary>Show Plan</summary>
 
         ```
-        ${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}
+        ${{ steps.terraform.outputs.stdout || steps.terraform.outputs.stderr }}
         ```
 
         </details>
+
         *Pushed by: @${{ github.actor }}, Action: `${{ github.event_name }}`*
       repo-token: ${{ github.token }}
       repo-token-user-login: 'github-actions[bot]'
