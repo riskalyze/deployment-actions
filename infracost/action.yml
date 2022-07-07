@@ -8,6 +8,9 @@ inputs:
   github-ssh-key:
     description: An SSH private key with access to clone private module repos.
     required: true
+  infracost-api-key:
+    description: The Infracost API Key.
+    required: true
   region:
     description: The AWS region to use.
     required: true
@@ -31,7 +34,7 @@ runs:
     - name: Setup Infracost
       uses: infracost/actions/setup@v2
       with:
-        api-key: ${{ secrets.INFRACOST_API_KEY }}
+        api-key: ${{ inputs.infracost-api-key }}
     - name: Assume AWS role
       uses: aws-actions/configure-aws-credentials@v1
       with:
