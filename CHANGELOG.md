@@ -1,5 +1,25 @@
 # Changelog
 
+## [3.2.0](https://github.com/riskalyze/deployment-actions/compare/v3.1.0...v3.2.0) (2022-07-08)
+
+
+### Features
+
+* Add infracost action ([63d0a7f](https://github.com/riskalyze/deployment-actions/commit/63d0a7fca3aac881e220842753da9cbe793cae8b))
+
+
+### Bug Fixes
+
+* **terraform:** Cd to workdir ([89308ac](https://github.com/riskalyze/deployment-actions/commit/89308ac22b47cf6557c12d6eeb5301cdd852b469))
+* **terraform:** Pass in backend config ([d6485bc](https://github.com/riskalyze/deployment-actions/commit/d6485bcea7064e2a69c3ed71f4239a0015138476))
+* **terraform:** Refactor args ([adbaacc](https://github.com/riskalyze/deployment-actions/commit/adbaaccf2f3108816fac9764e82334ea54058e5d))
+* **terraform:** Refactor args ([f3b8342](https://github.com/riskalyze/deployment-actions/commit/f3b8342f3aba54dd94befe779f339e16fca1ada8))
+* **terraform:** Require workspace input ([6f2854d](https://github.com/riskalyze/deployment-actions/commit/6f2854d05f62db11e7e11d511a802fa25eadbc61))
+* **terraform:** Revert Cd to workdir ([4a14c0c](https://github.com/riskalyze/deployment-actions/commit/4a14c0c769dfda4c5c44004d1bce2a0f14c864e9))
+* **terraform:** Run init before workspace selection ([3de8815](https://github.com/riskalyze/deployment-actions/commit/3de881565db499bf933adc5357297210edafe3de))
+* **terraform:** Support for private modules repos ([8d6d8b1](https://github.com/riskalyze/deployment-actions/commit/8d6d8b1b38156ee0801710384347d6e70451ed71))
+* **terraform:** Support for sops-encrypted tfvars ([d8de8a8](https://github.com/riskalyze/deployment-actions/commit/d8de8a8ba48b434fc0f8e2f4ddfdc163cc8cb252))
+
 ## [3.1.0](https://github.com/riskalyze/deployment-actions/compare/v3.0.0...v3.1.0) (2022-07-05)
 
 
