@@ -78,20 +78,11 @@ runs:
     id: parse-outputs
     if: always() && inputs.comment-on-pr != ''
     shell: bash
+    env:
+      STDOUT: ${{ steps.terraform.outputs.stdout }}
+      STDERR: ${{ steps.terraform.outputs.stderr }}
     run: |
-      planExitCode=${{ steps.terraform.outputs.exitcode }}
-      planHasChanges=false
-      if [ ${planExitCode} -eq 0 ]; then
-        echo ::set-output name=has_changes::${planHasChanges}
-      fi
-
-      if [ ${planExitCode} -eq 2 ]; then
-        planExitCode=0
-        planHasChanges=true
-        echo ::set-output name=has_changes::${planHasChanges}
-      fi
-
-      echo ::set-output name=plan_summary::$(grep "Plan: " <<< ${{ steps.terraform.outputs.stdout }})  
+      echo ::set-output name=plan_summary::$(grep "Plan: " <<< $STDOUT)  
   - name: Post plan to PR comment
     if: always() && inputs.comment-on-pr != '' && (steps.terraform.outcome == 'success' || steps.terraform.outcome == 'failure')
     uses: marocchino/sticky-pull-request-comment@v2
