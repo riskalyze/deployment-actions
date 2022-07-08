@@ -82,7 +82,11 @@ runs:
       STDOUT: ${{ steps.terraform.outputs.stdout }}
       STDERR: ${{ steps.terraform.outputs.stderr }}
     run: |
-      echo ::set-output name=plan_summary::$(grep "Plan: " <<< $STDOUT)  
+      if result=$(grep "Plan: " <<< $STDOUT || grep "No changes." <<< $STDOUT); then
+        echo ::set-output name=plan_summary::$result
+      else
+        echo ::set-output name=plan_summary::"Error during plan! See details below."
+      fi
   - name: Post plan to PR comment
     if: always() && inputs.comment-on-pr != '' && (steps.terraform.outcome == 'success' || steps.terraform.outcome == 'failure')
     uses: marocchino/sticky-pull-request-comment@v2
@@ -97,7 +101,8 @@ runs:
         <details><summary>Show Plan</summary>
 
         ```hcl
-        ${{ steps.terraform.outputs.stdout || steps.terraform.outputs.stderr }}
+        ${{ steps.terraform.outputs.stdout }}
+        ${{ steps.terraform.outputs.stderr }}
         ```
 
         </details>
