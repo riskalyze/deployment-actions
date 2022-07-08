@@ -92,7 +92,7 @@ runs:
       message: |
         ## Terraform plan ${{ steps.terraform.outcome }} for `${{ inputs.environment }}` workspace `${{ inputs.workspace }}`
 
-        `${{ steps.parse-outputs.outputs.plan_summary }}`
+        `${{ steps.parse-outputs.outputs.plan_summary || 'No changes' }}`
 
         <details><summary>Show Plan</summary>
 
