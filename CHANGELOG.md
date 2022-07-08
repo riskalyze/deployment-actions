@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.1](https://github.com/riskalyze/deployment-actions/compare/v3.2.0...v3.2.1) (2022-07-08)
+
+
+### Bug Fixes
+
+* Better error handling ([d7c6a47](https://github.com/riskalyze/deployment-actions/commit/d7c6a4767e7a2b09b0bd26067422024559792394))
+
 ## [3.2.0](https://github.com/riskalyze/deployment-actions/compare/v3.1.0...v3.2.0) (2022-07-08)
 
 
