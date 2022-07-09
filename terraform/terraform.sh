@@ -14,10 +14,10 @@ terraform workspace select "${WORKSPACE}"
 
 case $TASK in
   apply)
-    args=("apply" "-no-color" "-input=false" "-auto-approve" "tfplan")
+    args=("apply" "-no-color" "-input=false" "-auto-approve" "$ENVIRONMENT-$WORKSPACE-tfplan")
     ;;
   plan | plan-destroy)
-    args=("plan" "-no-color" "-out=tfplan" "-input=false" "-var-file=$ENVIRONMENT.tfvars")
+    args=("plan" "-no-color" "-out=$ENVIRONMENT-$WORKSPACE-tfplan" "-input=false" "-var-file=$ENVIRONMENT.tfvars")
     if [ "$TASK" == "plan-destroy" ]; then
       args+=("-destroy")
     fi
@@ -32,7 +32,7 @@ case $TASK in
       echo "ERROR! Cannot destroy a production environment!!"
       exit 1
     fi
-    args=("apply" "-destroy" "-input=false" "-auto-approve" "-lock-timeout=30s" "tfplan")
+    args=("apply" "-destroy" "-input=false" "-auto-approve" "-lock-timeout=30s" "$ENVIRONMENT-$WORKSPACE-tfplan")
     ;;
   *)
     echo "Unknown task $TASK!"

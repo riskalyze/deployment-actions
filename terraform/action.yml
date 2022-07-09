@@ -57,7 +57,7 @@ runs:
     if: inputs.task == 'apply' || inputs.task == 'destroy'
     uses: actions/download-artifact@v3
     with:
-      name: tfplan
+      name: ${{ inputs.environment }}-${{ inputs.workspace }}-tfplan
       path: ${{ inputs.workspace }}
   - name: Terraform ${{ inputs.task }}
     id: terraform
@@ -112,5 +112,5 @@ runs:
     uses: actions/upload-artifact@v3
     if: inputs.task == 'plan' || inputs.task == 'plan-destroy'
     with:
-      name: tfplan
-      path: ${{ inputs.workspace }}/tfplan
+      name: ${{ inputs.environment }}-${{ inputs.workspace }}-tfplan
+      path: ${{ inputs.workspace }}/${{ inputs.environment }}-${{ inputs.workspace }}-tfplan
