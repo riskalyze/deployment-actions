@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.2](https://github.com/riskalyze/deployment-actions/compare/v3.2.1...v3.2.2) (2022-07-09)
+
+
+### Bug Fixes
+
+* Nicer formatting of output ([4573218](https://github.com/riskalyze/deployment-actions/commit/45732182022ed41afad66501856646279fd8e477))
+
 ## [3.2.1](https://github.com/riskalyze/deployment-actions/compare/v3.2.0...v3.2.1) (2022-07-08)
 
 
