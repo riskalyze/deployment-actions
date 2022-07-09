@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.3](https://github.com/riskalyze/deployment-actions/compare/v3.2.2...v3.2.3) (2022-07-09)
+
+
+### Bug Fixes
+
+* **terraform:** Uniquely named artifacts per env/workspace ([95dbaca](https://github.com/riskalyze/deployment-actions/commit/95dbaca94c9e6164e8249630d7782f3d12f83a8f))
+
 ## [3.2.2](https://github.com/riskalyze/deployment-actions/compare/v3.2.1...v3.2.2) (2022-07-09)
 
 
