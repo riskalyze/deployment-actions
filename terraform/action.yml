@@ -96,7 +96,7 @@ runs:
       message: |
         ## Terraform plan ${{ steps.terraform.outcome }} for `${{ inputs.environment }}` workspace `${{ inputs.workspace }}`
 
-        `${{ steps.parse-outputs.outputs.plan_summary || 'No changes' }}`
+        `${{ steps.parse-outputs.outputs.plan_summary }}`
 
         <details><summary>Show Plan</summary>
 
@@ -106,8 +106,6 @@ runs:
         ```
 
         </details>
-
-        *Pushed by: @${{ github.actor }}, Action: `${{ github.event_name }}`*
   - name: Upload artifact
     uses: actions/upload-artifact@v3
     if: inputs.task == 'plan' || inputs.task == 'plan-destroy'
