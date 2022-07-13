@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.4](https://github.com/riskalyze/deployment-actions/compare/v3.2.3...v3.2.4) (2022-07-13)
+
+
+### Bug Fixes
+
+* Move tfvars into environments folder ([e31e691](https://github.com/riskalyze/deployment-actions/commit/e31e691ab64d1e753724d82cf545a928baf6d300))
+
 ## [3.2.3](https://github.com/riskalyze/deployment-actions/compare/v3.2.2...v3.2.3) (2022-07-09)
 
 
