@@ -21,9 +21,9 @@ case $TASK in
     if [ "$TASK" == "plan-destroy" ]; then
       args+=("-destroy")
     fi
-    if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
+    if [ -f "environments/$ENVIRONMENT.secret.tfvars" ]; then
       echo "Found SOPS-encrypted tfvars; decrypting."
-      sops -i -d "$ENVIRONMENT.secret.tfvars"
+      sops -i -d "environments/$ENVIRONMENT.secret.tfvars"
       args+=("-var-file=environments/$ENVIRONMENT.secret.tfvars")
     fi
     ;;
