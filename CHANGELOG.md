@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.6](https://github.com/riskalyze/deployment-actions/compare/v3.2.5...v3.2.6) (2022-07-13)
+
+
+### Bug Fixes
+
+* **infracost:** Fix passing of vars in infracost module ([6a290be](https://github.com/riskalyze/deployment-actions/commit/6a290be448533b9a29ea9956c2bb53397e7ab4ff))
+
 ## [3.2.5](https://github.com/riskalyze/deployment-actions/compare/v3.2.4...v3.2.5) (2022-07-13)
 
 
