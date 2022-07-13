@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.5](https://github.com/riskalyze/deployment-actions/compare/v3.2.4...v3.2.5) (2022-07-13)
+
+
+### Bug Fixes
+
+* **terraform:** Fix a bug with terraform action not using secrets ([6b62258](https://github.com/riskalyze/deployment-actions/commit/6b62258b18826f08878671e04acca4d6536e0c36))
+
 ## [3.2.4](https://github.com/riskalyze/deployment-actions/compare/v3.2.3...v3.2.4) (2022-07-13)
 
 
