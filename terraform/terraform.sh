@@ -17,14 +17,14 @@ case $TASK in
     args=("apply" "-no-color" "-input=false" "-auto-approve" "$ENVIRONMENT-$WORKSPACE-tfplan")
     ;;
   plan | plan-destroy)
-    args=("plan" "-no-color" "-out=$ENVIRONMENT-$WORKSPACE-tfplan" "-input=false" "-var-file=$ENVIRONMENT.tfvars")
+    args=("plan" "-no-color" "-out=$ENVIRONMENT-$WORKSPACE-tfplan" "-input=false" "-var-file=environments/$ENVIRONMENT.tfvars")
     if [ "$TASK" == "plan-destroy" ]; then
       args+=("-destroy")
     fi
     if [ -f "$ENVIRONMENT.secret.tfvars" ]; then
       echo "Found SOPS-encrypted tfvars; decrypting."
       sops -i -d "$ENVIRONMENT.secret.tfvars"
-      args+=("-var-file=$ENVIRONMENT.secret.tfvars")
+      args+=("-var-file=environments/$ENVIRONMENT.secret.tfvars")
     fi
     ;;
   destroy)
