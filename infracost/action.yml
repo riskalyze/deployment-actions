@@ -45,8 +45,8 @@ runs:
     - name: Decrypt sops secrets
       shell: bash
       run: |
-        if [ -f "${{ inputs.environment }}.secret.tfvars" ]; then
-          sops -i -d "${{ inputs.environment }}.secret.tfvars"
+        if [ -f "environments/${{ inputs.environment }}.secret.tfvars" ]; then
+          sops -i -d "environments/${{ inputs.environment }}.secret.tfvars"
         fi
     - name: Generate Infracost cost estimate baseline
       shell: bash
@@ -58,9 +58,9 @@ runs:
           "--project-name=${{ inputs.environment }}-${{ inputs.workspace }}"
           "--format=json"
           "--out-file=/tmp/infracost-base.json"
-          "--terraform-var-file=${{ inputs.environment }}.tfvars"
+          "--terraform-var-file=environments/${{ inputs.environment }}.tfvars"
         )
-        test -f "${{ inputs.environment }}.secret.tfvars" && args+=("--terraform-var-file=${{ inputs.environment }}.secret.tfvars")
+        test -f "environments/${{ inputs.environment }}.secret.tfvars" && args+=("--terraform-var-file=environments/${{ inputs.environment }}.secret.tfvars")
 
         echo "Running infracost ${args[@]}"
         infracost "${args[@]}"
@@ -77,9 +77,9 @@ runs:
           "--format=json"
           "--compare-to=/tmp/infracost-base.json"
           "--out-file=/tmp/infracost.json"
-          "--terraform-var-file=${{ inputs.environment }}.tfvars"
+          "--terraform-var-file=environments/${{ inputs.environment }}.tfvars"
         )
-        test -f "${{ inputs.environment }}.secret.tfvars" && args+=("--terraform-var-file=${{ inputs.environment }}.secret.tfvars")
+        test -f "environments/${{ inputs.environment }}.secret.tfvars" && args+=("--terraform-var-file=environments/${{ inputs.environment }}.secret.tfvars")
         echo "Running infracost ${args[@]}"
         infracost "${args[@]}"
     - name: Post Infracost comment
