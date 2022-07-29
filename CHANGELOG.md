@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.7](https://github.com/riskalyze/deployment-actions/compare/v3.2.6...v3.2.7) (2022-07-29)
+
+
+### Bug Fixes
+
+* **eks-helm-deploy:** Set up docker hub authentication for new namespaces ([8a65d4a](https://github.com/riskalyze/deployment-actions/commit/8a65d4a56d0fb28239c8b326705bb17b4eb3b245))
+
 ## [3.2.6](https://github.com/riskalyze/deployment-actions/compare/v3.2.5...v3.2.6) (2022-07-13)
 
 
