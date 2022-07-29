@@ -10,6 +10,23 @@ metadata:
   name: $NAMESPACE
   labels:
     istio-injection: enabled
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: docker-config-json
+  namespace: $NAMESPACE
+data:
+  .dockerconfigjson: ewoJImF1dGhzIjogewoJCSJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOiB7CgkJCSJhdXRoIjogImNtbHphMkZzZVhwbFlXUnRhVzQ2WjJoMWJqWndkV2d3ZDI5dEtscEJWVWM9IgoJCX0KCX0KfQo=
+type: kubernetes.io/dockerconfigjson
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: $NAMESPACE
+imagePullSecrets:
+  - name: docker-config-json
 EOF
 
   params=(
