@@ -94,7 +94,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     steps:
-    - uses: riskalyze/deployment-actions/helm-package@v2
+    - uses: riskalyze/deployment-actions/helm-package@v3
       with:
         ecr-account-id: ${{ inputs.shared-account-id }}
         ecr-region: ${{ inputs.shared-region || 'us-east-2' }}
@@ -126,7 +126,7 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
         intervalSeconds: 30
         timeoutSeconds: ${{ inputs.build-step-wait-timeout }}
-    - uses: riskalyze/deployment-actions/eks-helm-deploy@v2
+    - uses: riskalyze/deployment-actions/eks-helm-deploy@v3
       if: steps.wait-for-build.outputs.conclusion == 'success'
       with:
         cluster: ${{ inputs.cluster }}
