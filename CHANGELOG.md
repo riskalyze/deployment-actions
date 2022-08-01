@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.8](https://github.com/riskalyze/deployment-actions/compare/v3.2.7...v3.2.8) (2022-08-01)
+
+
+### Bug Fixes
+
+* **deployment-handler:** Use latest eks-helm-deploy action ([1792297](https://github.com/riskalyze/deployment-actions/commit/1792297f80ef2d30c4f383d660f55d33bc673309))
+
 ## [3.2.7](https://github.com/riskalyze/deployment-actions/compare/v3.2.6...v3.2.7) (2022-07-29)
 
 
