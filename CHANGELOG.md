@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.9](https://github.com/riskalyze/deployment-actions/compare/v3.2.8...v3.2.9) (2022-08-02)
+
+
+### Bug Fixes
+
+* Do not pass ref to helm charts ([f73e1f7](https://github.com/riskalyze/deployment-actions/commit/f73e1f7c0a352ca3e50bae8e2b149a653cec0ee3))
+
 ## [3.2.8](https://github.com/riskalyze/deployment-actions/compare/v3.2.7...v3.2.8) (2022-08-01)
 
 
